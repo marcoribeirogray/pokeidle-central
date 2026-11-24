@@ -468,8 +468,13 @@ const importarNovas = () => {
     try {
       fs.unlinkSync(arq);
     } catch {}
+    if (dados && typeof dados === 'object' && !dados.token) {
+      const dentro = Object.values(dados).find((v) => v && typeof v === 'object' && v.token);
+      if (dentro) dados = { ...dentro, nick: dentro.nick ?? dados.nick };
+    }
     if (!dados?.nick || !dados?.token) {
-      console.log(`Arquivo ${nome} ignorado: não tem nick e token.`);
+      const forma = dados && typeof dados === 'object' ? `campos: ${Object.keys(dados).join(', ') || 'nenhum'}` : `não é JSON (${texto.length} caracteres, começa com "${texto.slice(0, 1)}")`;
+      console.log(`Arquivo ${nome} ignorado: não tem nick e token (${forma}).`);
       continue;
     }
     const existente = contas.get(dados.nick);
