@@ -200,14 +200,14 @@ function renderConta() {
 function renderBox() {
   if (!saude) { $('#tela').innerHTML = '<div class="tile largo hero">Carregando a saúde da box…</div>'; return; }
   const sd = saude, tn = sd.temperaturaNivel, m = sd.memoria;
-  const cargaPct = Math.round((sd.carga[0] / sd.nucleos) * 100);
+  const cpu = sd.cpuPokebox ?? 0;
   const hist = sd.historicoTemp || [], hmax = Math.max(1, ...hist.map((x) => x.v));
   $('#tela').innerHTML = `<div class="grade">
     ${sd.atualizacao ? `<button class="tile largo dest" data-abrir="atualizar">${ico('repo')}<span class="rot">Atualização disponível</span><span class="val" style="font-size:18px">Versão ${esc(sd.versaoRemota)}</span><span class="det">Você está na ${esc(sd.versao)}. Toque para atualizar.</span></button>` : ''}
     ${sd.resfriandoAte ? `<div class="tile largo alerta"><span class="rot">Resfriando</span><span class="val" style="font-size:18px">Contas pausadas até ${hora(sd.resfriandoAte)}</span><span class="det">A box esquentou demais; elas voltam sozinhas.</span></div>` : ''}
     <div class="tile ${tn === 2 ? 'perigo' : tn === 1 ? 'alerta' : ''}" style="cursor:default"><span class="rot">Temperatura</span><span class="val ${tn === 2 ? 'n2' : tn === 1 ? 'n1' : ''}">${sd.temperatura != null ? sd.temperatura + ' °C' : '—'}</span>${hist.length > 3 ? `<div class="spark">${hist.slice(-30).map((x) => `<i style="height:${Math.max(6, (x.v / hmax) * 100)}%"></i>`).join('')}</div>` : ''}<span class="det">limite ${sd.cfg.tempMax} °C</span></div>
     <div class="tile ${m.nivel === 2 ? 'perigo' : m.nivel === 1 ? 'alerta' : ''}" style="cursor:default"><span class="rot">Memória livre</span><span class="val">${num(m.livreMB)} MB</span><span class="det">de ${num(m.totalMB)} MB · PokeBox ${m.pokeboxMB} MB</span></div>
-    <div class="tile ${cargaPct > 90 ? 'alerta' : ''}" style="cursor:default"><span class="rot">Processador</span><span class="val">${cargaPct}%</span><span class="det">${sd.nucleos} núcleos · média 1 min</span></div>
+    <div class="tile ${cpu > 60 ? 'alerta' : ''}" style="cursor:default"><span class="rot">Processador do PokeBox</span><span class="val">${cpu}%</span><span class="det">de 1 núcleo · box com ${sd.nucleos} núcleos</span></div>
     <div class="tile" style="cursor:default"><span class="rot">Ligada há</span><span class="val">${dur(sd.boxLigadaHa)}</span><span class="det">PokeBox há ${dur(sd.pokeboxLigadoHa)}</span></div>
     <div class="tile" style="cursor:default"><span class="rot">Espaço livre</span><span class="val">${sd.disco ? sd.disco.livreGB.toString().replace('.', ',') + ' GB' : '—'}</span><span class="det">armazenamento interno</span></div>
     <div class="tile" style="cursor:default"><span class="rot">Quedas</span><span class="val">${num(sd.quedas.reduce((a, q) => a + q.quedas, 0))}</span><span class="det">${sd.quedas.map((q) => `${esc(q.nick)} ${q.quedas}`).join(' · ') || '—'}</span></div>

@@ -7,7 +7,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { carregarEspecies, especies, novaInteligencia, aoEvento, aoCampo, acompanhar, recomendar, cicloAuto, resumoAuto, salvarInteligencia, AUTO } from './motor.mjs';
 
-const VERSAO = '0.3.0';
+const VERSAO = '0.3.1';
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const DADOS = process.env.POKEBOX_DADOS || path.join(process.env.HOME || AQUI, 'pokebox-dados');
 const NOVAS = path.join(DADOS, 'novas');
@@ -724,7 +724,7 @@ const lerMemoriaSistema = () => {
     return { totalMB: Math.round(os.totalmem() / 1048576), livreMB: Math.round(os.freemem() / 1048576) };
   }
 };
-const saude = { historicoTemp: [], acima: 0, resfriandoAte: 0, versaoRemota: null, versaoEm: 0 };
+const saude = { historicoTemp: [], acima: 0, resfriandoAte: 0, versaoRemota: null, versaoEm: 0, cpuAnt: process.cpuUsage(), cpuT: Date.now(), cpuPct: 0 };
 const cfgSaude = () => ({ tempMax: 80, autoResfriar: true, pausaMin: 20, ...(cfg.saude ?? {}) });
 const checarVersao = async () => {
   if (agora() - saude.versaoEm < 30 * 60000) return;
@@ -741,6 +741,11 @@ const versaoMaior = (a, b) => {
   return false;
 };
 setInterval(() => {
+  const uso = process.cpuUsage(saude.cpuAnt);
+  const dt = (Date.now() - saude.cpuT) * 1000;
+  saude.cpuPct = dt > 0 ? Math.round(((uso.user + uso.system) / dt) * 100) : 0;
+  saude.cpuAnt = process.cpuUsage();
+  saude.cpuT = Date.now();
   const temp = lerTemperatura();
   if (temp != null) {
     saude.historicoTemp.push({ t: agora(), v: Math.round(temp) });
@@ -775,6 +780,7 @@ const resumoSaude = () => {
     historicoTemp: saude.historicoTemp.slice(-60),
     memoria: { ...mem, pokeboxMB: Math.round(process.memoryUsage().rss / 1048576), nivel: memNivel },
     carga: os.loadavg().map((x) => Math.round(x * 100) / 100),
+    cpuPokebox: saude.cpuPct,
     nucleos: os.cpus().length || 4,
     boxLigadaHa: Math.round(os.uptime()),
     pokeboxLigadoHa: Math.round((agora() - inicio) / 1000),
