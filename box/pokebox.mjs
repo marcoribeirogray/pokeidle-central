@@ -7,7 +7,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { carregarEspecies, especies, novaInteligencia, aoEvento, aoCampo, acompanhar, recomendar, cicloAuto, resumoAuto, salvarInteligencia, AUTO } from './motor.mjs';
 
-const VERSAO = '0.3.1';
+const VERSAO = '0.3.2';
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const DADOS = process.env.POKEBOX_DADOS || path.join(process.env.HOME || AQUI, 'pokebox-dados');
 const NOVAS = path.join(DADOS, 'novas');
@@ -828,6 +828,16 @@ const novaSessao = (res) => {
 };
 
 const servidor = http.createServer((req, res) => {
+  try {
+    tratar(req, res);
+  } catch (e) {
+    console.log('Erro no painel:', e.stack || e.message);
+    try {
+      responder(res, 500, { erro: 'erro interno; veja o registro' });
+    } catch {}
+  }
+});
+const tratar = (req, res) => {
   const url = new URL(req.url, 'http://x');
   if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) {
     try {
@@ -895,7 +905,7 @@ const servidor = http.createServer((req, res) => {
     return;
   }
   responder(res, 404, { erro: 'não encontrado' });
-});
+};
 
 const inicio = agora();
 for (const d of lerJson(ARQ_CONTAS, [])) {

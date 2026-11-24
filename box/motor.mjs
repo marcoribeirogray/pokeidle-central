@@ -157,7 +157,7 @@ export const acompanhar = (conta) => {
     conta.evento(`A conta caiu em ${huntDe(conta, ia.acc.slug)?.nome ?? ia.acc.slug}; essa hunt fica de fora por um tempo`, 'erro');
   }
   ia.estavaNoCentro = noCentro;
-  if (ia.acc?.slug === slug) return;
+  if (ia.acc && ia.acc.slug === slug) return;
   if (ia.acc) {
     const dur = Date.now() - ia.acc.t0;
     if (dur >= MEDIR_MIN_MS && ia.acc.kills > 0) {
@@ -221,7 +221,7 @@ export const recomendar = (conta, cfgHunt) => {
     }
     return pontos ? soma / pontos : NaN;
   };
-  if (!forca && hAtual && ia.acc?.slug === hAtual.slug && ia.acc.kills >= 5 && Date.now() - ia.acc.t0 > 60000 && !est.noCentro) {
+  if (!forca && hAtual && ia.acc && ia.acc.slug === hAtual.slug && ia.acc.kills >= 5 && Date.now() - ia.acc.t0 > 60000 && !est.noCentro) {
     const killsH = (ia.acc.kills * 3600000) / (Date.now() - ia.acc.t0);
     const porOnda = Math.min(MAX_MOBS, (hAtual.especies ?? []).reduce((a, x) => a + (x.pontos || 0), 0)) || 1;
     const alvo = 3600 / killsH - MS_ENTRE_ALVOS / 1000 - MS_ONDA / 1000 / porOnda;
@@ -290,7 +290,7 @@ export const recomendar = (conta, cfgHunt) => {
     lista.push({ slug: h.slug, nome: h.nome, nivel: h.nivel, ttkMedio, ttkPior, fraqPior, fraqTipo, xpH, ouroH, medida, perigosa, risco });
   }
   const atualBruta = lista.find((x) => x.slug === est.huntSlug) ?? null;
-  const naHunt = ia.acc?.slug === est.huntSlug ? Date.now() - ia.acc.t0 : 0;
+  const naHunt = ia.acc && ia.acc.slug === est.huntSlug ? Date.now() - ia.acc.t0 : 0;
   const prova = seg.comprovada && atualBruta && !atualBruta.perigosa && !est.noCentro && naHunt > 10 * 60000 ? atualBruta : null;
   const limTtk = Math.max(seg.ttkMax, prova && Number.isFinite(prova.ttkPior) ? prova.ttkPior * 1.1 : 0);
   const limFraq = seg.fraqMax >= 99 ? Infinity : Math.max(seg.fraqMax, prova ? prova.fraqPior : 0);
@@ -331,7 +331,7 @@ export const cicloAuto = (conta, cfgHunt) => {
   const reg = ia.auto;
   const ult = reg.log[reg.log.length - 1] ?? null;
   const est = conta.estado;
-  if (ult && !ult.conferido && ult.para === est.huntSlug && ia.acc?.slug === ult.para && agora - ia.acc.t0 >= AUTO.conferir && ia.acc.kills >= AUTO.minAbates) {
+  if (ult && !ult.conferido && ult.para === est.huntSlug && ia.acc && ia.acc.slug === ult.para && agora - ia.acc.t0 >= AUTO.conferir && ia.acc.kills >= AUTO.minAbates) {
     const medido = valorMedido(conta, ult.meta);
     ult.conferido = true;
     ult.medido = medido;
@@ -351,7 +351,7 @@ export const cicloAuto = (conta, cfgHunt) => {
     return;
   }
   if (ult && agora - ult.t < AUTO.espera) return;
-  const naHunt = ia.acc?.slug === est.huntSlug ? agora - ia.acc.t0 : 0;
+  const naHunt = ia.acc && ia.acc.slug === est.huntSlug ? agora - ia.acc.t0 : 0;
   if (naHunt < AUTO.minNaHunt) return;
   const r = recomendar(conta, cfgHunt);
   if (r.erro || !r.sugerir || !r.melhor) return;
@@ -379,7 +379,7 @@ export const resumoAuto = (conta, cfgHunt) => {
     pausaManualAte: ia.pausaManualAte > agora ? ia.pausaManualAte : 0,
     ultima: ult ? { t: ult.t, de: nomeDe(ult.de), para: nomeDe(ult.para), motivo: ult.motivo, conferido: ult.conferido, medido: ult.medido ? Math.round(ult.medido) : null, antes: ult.antes ? Math.round(ult.antes) : null } : null,
     proximoEmMs: proximo,
-    abatesNaHunt: ia.acc?.slug === conta.estado.huntSlug ? ia.acc.kills : 0,
+    abatesNaHunt: ia.acc && ia.acc.slug === conta.estado.huntSlug ? ia.acc.kills : 0,
   };
 };
 
