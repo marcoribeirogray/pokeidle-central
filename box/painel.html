@@ -3,184 +3,242 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#21141e">
+<meta name="theme-color" content="#1b1018">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>PokeBox</title>
 <style>
-:root{--fundo:#1b1018;--sup:#2a1a26;--sup2:#382331;--linha:#4e3446;--txt:#f4e9f0;--mut:#b59cac;--ouro:#f0b43c;--verde:#74d9a5;--alerta:#ff8a8a;--aviso:#ffd36b}
+:root{--fundo:#1b1018;--sup:#271823;--sup2:#34212f;--linha:#4b3243;--txt:#f5ebf1;--mut:#b49bab;--ouro:#f0b43c;--verde:#74d9a5;--alerta:#ff8a8a;--aviso:#ffd36b}
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--fundo);color:var(--txt);font:14px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-variant-numeric:tabular-nums}
-header{position:sticky;top:0;z-index:2;background:var(--sup);border-bottom:1px solid var(--linha);padding:10px 14px calc(8px) ;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
-header b.marca{font-size:15px}
-header .mut{font-size:12px}
-main{max-width:980px;margin:0 auto;padding:12px 10px 40px;display:flex;flex-direction:column;gap:12px}
-.mut{color:var(--mut)}
-.ok{color:var(--verde)}.n1{color:var(--aviso)}.n2{color:var(--alerta)}
-.seletor{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
-.seletor button{flex:none;display:inline-flex;gap:6px;align-items:center;background:var(--sup);border:1px solid var(--linha);color:var(--txt);border-radius:999px;padding:6px 12px;font:inherit;cursor:pointer}
-.seletor button.on{border-color:var(--ouro);background:var(--sup2);font-weight:600}
-.ponto{width:9px;height:9px;border-radius:50%;background:var(--verde);display:inline-block;flex:none}
+button,select,input{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:3;background:color-mix(in srgb,var(--fundo) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--linha);padding:calc(8px + env(safe-area-inset-top)) 12px 8px}
+.topo{display:flex;align-items:baseline;gap:10px;max-width:760px;margin:0 auto}
+.topo b{font-size:16px}
+.topo .mut{font-size:12px;margin-left:auto;text-align:right}
+.contas{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;max-width:760px;margin:8px auto 0}
+.contas::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:7px;background:var(--sup);border:1px solid var(--linha);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chip.on{border-color:var(--ouro);background:var(--sup2)}
+.chip b{font-weight:600}
+.chip span{color:var(--mut);font-size:12px}
+main{max-width:760px;margin:0 auto;padding:12px 10px calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+.ponto{width:9px;height:9px;border-radius:50%;background:var(--verde);flex:none}
 .ponto.n1{background:var(--aviso)}.ponto.n2{background:var(--alerta)}
-.cartao{background:var(--sup);border:1px solid var(--linha);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
-.cab{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-.cab .nick{font-size:17px;font-weight:700}
-.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
-.nums div{background:var(--sup2);border-radius:9px;padding:7px 9px;display:flex;flex-direction:column}
-.nums b{font-size:17px}
+.mut{color:var(--mut)}.ok{color:var(--verde)}.n1{color:var(--aviso)}.n2{color:var(--alerta)}
+.bloco{background:var(--sup);border:1px solid var(--linha);border-radius:14px;padding:12px}
+.cab{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cab .nick{font-size:18px;font-weight:700}
+.estado{margin-left:auto;font-size:12.5px;padding:2px 10px;border-radius:999px;background:#1f4d34;color:#c8f5dc}
+.estado.n1{background:#5a4512;color:#ffe9b0}.estado.n2{background:#6e2230;color:#ffd9dd}
+.sub{margin-top:4px;color:var(--mut)}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.nums div{background:var(--sup2);border-radius:10px;padding:8px 10px}
+.nums b{display:block;font-size:18px;line-height:1.2}
 .nums span{color:var(--mut);font-size:11.5px}
-h3{margin:4px 0 0;font-size:13.5px}
+.mini{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;color:var(--mut)}
+.mini b{color:var(--txt);font-weight:600}
+.alerta{margin-top:10px;background:#3d2b12;border:1px solid #8a6a2a;border-radius:10px;padding:9px 11px}
+h2{margin:0 0 8px;font-size:14px;display:flex;align-items:center;gap:8px}
+h2 .mut{font-weight:400;font-size:12px;margin-left:auto}
+.seg{display:inline-flex;background:var(--sup2);border-radius:10px;padding:3px;gap:2px}
+.seg button{background:none;border:0;color:var(--mut);padding:7px 14px;border-radius:8px;cursor:pointer}
+.seg button.on{background:var(--ouro);color:#2a1508;font-weight:700}
 .linha{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.bt{background:var(--sup2);color:var(--txt);border:1px solid var(--linha);border-radius:8px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}
+.sug{margin-top:10px;border-radius:12px;padding:10px 12px;background:#3a2a12;border:1px solid #8a6a2a;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sug.boa{background:#1c3628;border-color:#2e6e47}
+.sug.info{background:var(--sup2);border-color:var(--linha)}
+.sug .txt{flex:1;min-width:200px}
+.bt{background:var(--sup2);border:1px solid var(--linha);border-radius:9px;padding:8px 14px;cursor:pointer;white-space:nowrap}
 .bt.prim{background:var(--ouro);border-color:var(--ouro);color:#2a1508;font-weight:700}
-.bt.peq{padding:5px 9px;font-size:12px}
-.bt:disabled{opacity:.45}
-select,input[type=number]{background:var(--fundo);color:var(--txt);border:1px solid var(--linha);border-radius:7px;padding:6px 8px;font:inherit;font-size:16px}
-input[type=number]{width:84px}
-select{max-width:100%}
+.bt.peq{padding:5px 10px;font-size:12.5px}
+.bt.conf{background:var(--aviso);border-color:var(--aviso);color:#2a1508;font-weight:700}
+.lista{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.op{display:flex;align-items:center;gap:10px;background:var(--sup2);border-radius:10px;padding:8px 10px}
+.op .nome{flex:1;min-width:0}
+.op .nome small{color:var(--mut);display:block}
+.barra{height:5px;border-radius:3px;background:var(--ouro);opacity:.85;margin-top:4px}
+select,input[type=number]{background:var(--fundo);border:1px solid var(--linha);border-radius:8px;padding:7px 9px;font-size:16px}
+select{max-width:100%;min-width:0;flex:1}
+input[type=number]{width:80px}
+details{background:var(--sup);border:1px solid var(--linha);border-radius:14px}
+details>summary{list-style:none;cursor:pointer;padding:12px;display:flex;align-items:center;gap:8px;font-weight:600}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:'';margin-left:8px;width:8px;height:8px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg);transition:transform .15s}
+details[open]>summary::after{transform:rotate(-135deg)}
+details>summary .mut{font-weight:400;font-size:12.5px;margin-left:auto}
+details>.corpo{padding:0 12px 12px;display:flex;flex-direction:column;gap:10px}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;font-weight:500;color:var(--mut);font-size:12px;padding:4px 6px;border-bottom:1px solid var(--linha)}
-td{padding:5px 6px;border-bottom:1px solid #ffffff0d}
-td.n{text-align:right}
+td{padding:6px;border-bottom:1px solid #ffffff0c;vertical-align:middle}
+td.n,th.n{text-align:right}
 .rolar{overflow-x:auto}
-.tag{display:inline-block;background:var(--sup2);border-radius:6px;padding:2px 8px;font-size:12px;color:var(--mut);margin:2px 4px 2px 0}
-.ev{font-size:12.5px;padding:2px 0}
-.aviso{background:#3d2b12;border:1px solid #8a6a2a;border-radius:10px;padding:9px 11px}
-.calmo{background:#1c3628;border:1px solid #2e6e47;border-radius:10px;padding:9px 11px}
-details>summary{cursor:pointer;font-weight:600;padding:2px 0}
-label{cursor:pointer}
-.msg{font-size:12px}
+.tag{display:inline-block;background:var(--sup2);border-radius:7px;padding:2px 8px;font-size:12px;color:var(--mut);margin:2px 4px 2px 0}
+.tag b{color:var(--txt)}
+.ev{font-size:12.5px;padding:3px 0;border-bottom:1px solid #ffffff08}
+.msg{font-size:12.5px}
+label{cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--ouro)}
+.vazio{padding:18px;text-align:center;color:var(--mut)}
+@media (min-width:640px){.nums{grid-template-columns:repeat(6,1fr)}}
+@media (prefers-reduced-motion:reduce){details>summary::after{transition:none}}
 </style>
 </head>
 <body>
-<header><b class="marca">PokeBox</b><span class="mut" id="topo">carregando…</span></header>
-<main>
-  <div class="seletor" id="seletor"></div>
-  <div id="conteudo"></div>
-</main>
+<header>
+  <div class="topo"><b>PokeBox</b><span class="mut" id="topo">conectando à box…</span></div>
+  <div class="contas" id="contas"></div>
+</header>
+<main id="conteudo"><div class="vazio">Carregando…</div></main>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const num = (v) => Number(v || 0).toLocaleString('pt-BR');
-const curto = (v) => { v = Number(v) || 0; const a = Math.abs(v); return a >= 1e9 ? (v / 1e9).toFixed(1).replace('.', ',') + 'B' : a >= 1e6 ? (v / 1e6).toFixed(1).replace('.', ',') + 'M' : a >= 1e3 ? (v / 1e3).toFixed(1).replace('.', ',') + 'k' : String(Math.round(v)); };
+const curto = (v) => { v = Number(v) || 0; const a = Math.abs(v); const f = (x) => x.toFixed(1).replace('.', ','); return a >= 1e9 ? f(v / 1e9) + 'B' : a >= 1e6 ? f(v / 1e6) + 'M' : a >= 1e3 ? f(v / 1e3) + 'k' : String(Math.round(v)); };
 const hora = (t) => new Date(t).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-let estado = null;
-let sel = localStorage.getItem('pb-sel');
-let editando = false;
+const dur = (ms) => { const m = Math.round(ms / 60000); return m < 60 ? `${m} min` : `${(m / 60).toFixed(1).replace('.', ',')} h`; };
+const FRAQ = { 1: 'nenhuma', 2: 'até ×2', 4: 'até ×4', 99: 'qualquer' };
+let dados = null, sel = localStorage.getItem('pb-sel'), editando = false, ultimaOk = 0;
 
-const cor = (c) => (c.status === 'online' ? (c.noCentro ? 1 : 0) : c.pausada ? 1 : 2);
-const textoStatus = (c) => ({ online: c.noCentro ? 'no Centro Pokémon' : 'online', conectando: 'conectando…', reconectando: 'reconectando', pausada: 'pausada', desligada: 'desligada' })[c.status] ?? c.status;
+const cor = (c) => (c.status === 'online' ? (c.noCentro || c.motivo ? 1 : 0) : c.pausada ? 1 : 2);
+const textoStatus = (c) => ({ online: c.noCentro ? 'no Centro Pokémon' : 'online', conectando: 'conectando', reconectando: 'reconectando', pausada: 'pausada', desligada: 'desligada' })[c.status] ?? c.status;
 
-async function acao(dados, msgEl) {
+async function acao(corpo, msg) {
   try {
-    const r = await fetch('/api/acao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
+    const r = await fetch('/api/acao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) });
     const j = await r.json();
-    if (msgEl) msgEl.textContent = j.erro ? `Erro: ${j.erro}` : 'Feito.';
+    if (msg) msg.textContent = j.erro ? `Erro: ${j.erro}` : 'Salvo.';
     else if (j.erro) alert(j.erro);
-  } catch (e) {
-    if (msgEl) msgEl.textContent = 'Sem resposta da box.';
-  }
-  atualizar(true);
+  } catch { if (msg) msg.textContent = 'A box não respondeu.'; }
+  editando = false;
+  atualizar();
 }
 
-function cartao(c) {
-  const s = c.sessao;
-  const huntOpts = c.hunts.filter((h) => h.nivel <= Math.max(c.nivel, 1) * 1.0 + 50).map((h) => `<option value="${esc(h.slug)}" ${c.hunt?.slug === h.slug ? 'selected' : ''}>${esc(h.nome)} (Nv ${h.nivel})</option>`).join('');
-  const compraLinha = (kind, i) => `<tr><td>${esc(i.nome)}</td><td class="n">${num(i.q ?? 0)}</td><td class="n mut">${num(i.preco)}</td><td style="white-space:nowrap">${[100, 500, 1000].map((q) => `<button class="bt peq" data-comprar="${kind}|${esc(i.id)}|${q}">+${q >= 1000 ? '1k' : q}</button>`).join(' ')}</td></tr>`;
-  const qBola = (id) => c.bolas.find((b) => String(b.id) === String(id))?.q ?? 0;
-  const qItem = (id) => c.itens.find((b) => String(b.id) === String(id))?.q ?? 0;
-  const regras = c.cfg.reposicao.regras || {};
-  const regraLinha = (kind, i) => { const k = `${kind}:${i.id}`; const r = regras[k] || { ativo: false, min: 100, lote: 500 }; return `<tr data-regra="${k}"><td><label><input type="checkbox" data-c="ativo" ${r.ativo ? 'checked' : ''}> ${esc(i.nome)}</label></td><td><input type="number" min="0" data-c="min" value="${r.min}"></td><td><input type="number" min="1" max="9999" data-c="lote" value="${r.lote}"></td></tr>`; };
-  const merc = c.cfg.mercado; const precos = c.precosMercado || {};
-  const mercIds = [...new Set([...Object.keys(precos), ...Object.keys(merc.itens || {})])];
-  const mercLinha = (id) => { const r = merc.itens[id] || { ativo: false, acumular: 20, guardar: 0, modo: 'media', minPreco: 0 }; const it = c.itens.find((x) => String(x.id) === String(id)); const p = precos[id] || {}; return `<tr data-merc="${esc(id)}"><td><label><input type="checkbox" data-c="ativo" ${r.ativo ? 'checked' : ''}> ${esc(it?.nome ?? 'Item ' + id)}</label></td><td class="n">${num(it?.q ?? 0)}</td><td class="n mut">${p.media ? curto(p.media) : '—'}</td><td><input type="number" min="5" data-c="acumular" value="${r.acumular}"></td><td><input type="number" min="0" data-c="guardar" value="${r.guardar}"></td><td><select data-c="modo"><option value="media" ${r.modo === 'media' ? 'selected' : ''}>média</option><option value="menor" ${r.modo === 'menor' ? 'selected' : ''}>menor − 1</option></select></td></tr>`; };
-  return `<div class="cartao" data-nick="${esc(c.nick)}">
-    <div class="cab"><span class="ponto n${cor(c)}"></span><span class="nick">${esc(c.nick)}</span><span class="mut">Treinador Nv ${num(c.nivel)}</span><span style="margin-left:auto" class="${cor(c) ? 'n' + cor(c) : 'ok'}">${esc(textoStatus(c))}</span></div>
-    ${c.motivo ? `<div class="aviso">${esc(c.motivo)}</div>` : ''}
-    <div class="mut">${c.pokemon ? `${esc(c.pokemon.nome)} Nv ${num(c.pokemon.nivel)}` : '—'} · ${esc(c.hunt?.nome ?? 'sem hunt')}</div>
-    <div class="nums"><div><b>${curto(s.xpH)}</b><span>XP/h</span></div><div><b>${curto(s.ouroH)}</b><span>ouro/h</span></div><div><b>${curto(c.ouro)}</b><span>ouro</span></div><div><b>${num(s.abates)}</b><span>abates</span></div><div><b>${num(s.capturas)}</b><span>capturas</span></div><div><b>${num(s.shinies)}</b><span>shinies</span></div></div>
-    ${s.drops.length ? `<div>${s.drops.map((d) => `<span class="tag">${esc(d.nome)} <b>${num(d.q)}</b></span>`).join('')}</div>` : ''}
-    <div class="linha">${c.pausada ? `<button class="bt prim" data-acao="retomar">Retomar</button>` : `<button class="bt" data-acao="pausar">Pausar</button>`}</div>
-    <h3>Hunt</h3>
-    ${c.troca ? `<div class="aviso">Indo para <b>${esc(c.troca.nome)}</b> (tentativa ${c.troca.tentativas}). <button class="bt peq" data-acao="cancelarHunt">Cancelar</button></div>` : `<div class="linha"><select data-hunt>${huntOpts}</select><button class="bt prim" data-acao="irHunt">Ir</button></div>`}
-    <details><summary>Comprar</summary><div class="rolar"><table><tr><th>Item</th><th class="n">Tem</th><th class="n">Preço</th><th></th></tr>${c.catalogoBolas.map((b) => compraLinha('ball', { ...b, q: qBola(b.id) })).join('')}${c.catalogoCura.map((i) => compraLinha('item', { ...i, q: qItem(i.id) })).join('')}</table></div><div class="msg mut" data-msg="compra"></div></details>
-    <details data-edit><summary>Reposição automática</summary><div data-repo>
-      <div class="linha"><label><input type="checkbox" data-c="ativo" ${c.cfg.reposicao.ativo ? 'checked' : ''}> Ligada</label><label>Guardar sempre <input type="number" min="0" step="1000" data-c="reservaOuro" value="${c.cfg.reposicao.reservaOuro || 0}"> de ouro</label></div>
-      <div class="rolar"><table><tr><th>Item</th><th>Comprar abaixo de</th><th>Quantidade</th></tr>${c.catalogoBolas.map((b) => regraLinha('ball', b)).join('')}${c.catalogoCura.map((i) => regraLinha('item', i)).join('')}</table></div>
-      <div class="linha"><button class="bt prim" data-acao="salvarRepo">Salvar reposição</button><span class="msg mut" data-msg="repo"></span></div></div></details>
-    ${estado.main === c.nick ? '' : `<details data-edit><summary>Venda no mercado</summary><div data-mercfg>
-      <div class="linha"><label><input type="checkbox" data-c="ativo" ${merc.ativo ? 'checked' : ''}> Vender automaticamente</label><label>Máx. <input type="number" min="1" max="60" data-c="maxHora" value="${merc.maxHora || 6}"> anúncios/h</label><button class="bt peq" data-acao="precos">Atualizar preços</button></div>
-      ${mercIds.length ? `<div class="rolar"><table><tr><th>Item</th><th class="n">Tem</th><th class="n">Média</th><th>Juntar</th><th>Guardar</th><th>Preço</th></tr>${mercIds.map(mercLinha).join('')}</table></div>` : '<div class="mut">Clique em "Atualizar preços" para listar os itens que têm mercado.</div>'}
-      <div class="linha"><button class="bt prim" data-acao="salvarMerc">Salvar venda</button><span class="msg mut" data-msg="merc"></span></div></div></details>`}
-    <details><summary>Atividade</summary>${c.eventos.map((e) => `<div class="ev ${e.tipo === 'erro' ? 'n1' : e.tipo === 'ok' ? 'ok' : 'mut'}">${hora(e.t)} ${esc(e.txt)}</div>`).join('') || '<div class="mut">Nada ainda.</div>'}</details>
-    <details><summary>Mais</summary><div class="linha">${estado.main === c.nick ? '<span class="mut">Esta é a conta principal (não vende no mercado).</span>' : '<button class="bt peq" data-acao="main">Marcar como principal</button>'}<button class="bt peq" data-acao="remover">Remover da box</button></div></details>
-  </div>`;
+function blocoHunt(c) {
+  const ia = c.inteligencia || {}, au = ia.auto || { modo: 'manual', meta: 'off', seg: {} }, r = ia.recomendacao;
+  const modoSeg = `<span class="seg">${[['manual', 'Manual'], ['auto', 'Automático']].map(([m, t]) => `<button class="${au.modo === m ? 'on' : ''}" data-modo="${m}">${t}</button>`).join('')}</span>`;
+  const metaSeg = `<span class="seg">${[['xp', 'XP'], ['ouro', 'Ouro'], ['off', 'Sem meta']].map(([m, t]) => `<button class="${au.meta === m ? 'on' : ''}" data-meta="${m}">${t}</button>`).join('')}</span>`;
+  const un = au.meta === 'ouro' ? 'ouro/h' : 'XP/h';
+  let corpo = '';
+  if (c.troca) corpo = `<div class="sug info"><span class="txt">Indo para <b>${esc(c.troca.nome)}</b>, esperando uma pausa no combate (tentativa ${c.troca.tentativas}).</span><button class="bt peq" data-acao="cancelarHunt">Cancelar</button></div>`;
+  else if (au.meta === 'off') corpo = `<div class="sug info"><span class="txt">Escolha <b>XP</b> ou <b>Ouro</b> para receber sugestões${au.modo === 'auto' ? ' e o automático começar a trocar' : ''}.</span></div>`;
+  else if (!r) corpo = `<div class="sug info"><span class="txt">A conta precisa estar online para calcular.</span></div>`;
+  else if (r.erro) corpo = `<div class="sug info"><span class="txt">${esc(r.erro[0].toUpperCase() + r.erro.slice(1))}.</span></div>`;
+  else if (r.sugerir) corpo = `<div class="sug"><span class="txt"><b>${esc(r.melhor.nome)}</b> Nv ${num(r.melhor.nivel)}: ${curto(r.melhor.valor)} ${un}${r.ganho != null ? `, <b>${r.ganho}% a mais</b>` : ''} ${r.melhor.medida ? '(medido)' : '(estimado)'}.</span>${au.modo === 'auto' && !au.pausaManualAte ? '<span class="mut">o automático decide</span>' : `<button class="bt prim" data-ir="${esc(r.melhor.slug)}">Ir</button>`}</div>`;
+  else if (r.melhor) corpo = `<div class="sug boa"><span class="txt">Já está na melhor hunt segura para ${au.meta === 'ouro' ? 'ouro' : 'XP'}.</span></div>`;
+  else corpo = `<div class="sug info"><span class="txt">Nenhuma hunt passa na segurança.${r.barradas?.[0] ? ` ${esc(r.barradas[0].nome)}: ${esc(r.barradas[0].motivos.join(' e '))}.` : ''}</span></div>`;
+  let autoTxt = '';
+  if (au.modo === 'auto') {
+    if (au.pausaManualAte) autoTxt = `<div class="alerta">Automático pausado até ${hora(au.pausaManualAte)} porque você escolheu a hunt. <button class="bt peq" data-acao="retomarAuto">Retomar agora</button></div>`;
+    else if (au.ultima) autoTxt = `<div class="mut" style="margin-top:8px;font-size:12.5px">Última troca às ${hora(au.ultima.t)}: ${esc(au.ultima.de)} → ${esc(au.ultima.para)} (${esc(au.ultima.motivo)}).${!au.ultima.conferido ? ` Confere depois de 20 min e 40 abates (${au.abatesNaHunt} até agora).` : au.ultima.medido ? ` Mediu ${curto(au.ultima.medido)} contra ${curto(au.ultima.antes)} antes.` : ''}${au.proximoEmMs ? ` Próxima troca possível em ${dur(au.proximoEmMs)}.` : ''}</div>`;
+    else autoTxt = '<div class="mut" style="margin-top:8px;font-size:12.5px">Automático ligado. Troca quando achar uma hunt segura com 20% a mais, no máximo a cada 30 min, e volta se piorar.</div>';
+  }
+  const ops = r && !r.erro && r.opcoes?.length ? r.opcoes : [];
+  const maior = Math.max(1, ...ops.map((o) => o.valor));
+  const estimadas = Object.fromEntries(ops.map((o) => [o.slug, o.valor]));
+  const opsHtml = ops.length ? `<div class="lista">${ops.map((o) => `<div class="op"><div class="nome">${esc(o.nome)} <small>Nv ${num(o.nivel)} · ${curto(o.valor)} ${un}${o.medida ? ' medido' : ''}${o.risco != null ? ` · golpe tira ~${o.risco}%` : ''}</small><div class="barra" style="width:${Math.max(4, (o.valor / maior) * 100)}%"></div></div>${o.slug === c.hunt?.slug ? '<span class="ok">atual</span>' : `<button class="bt peq" data-ir="${esc(o.slug)}">Ir</button>`}</div>`).join('')}</div>` : '';
+  const todas = c.hunts.filter((h) => h.nivel <= Math.max(c.nivel, 1)).sort((a, b) => b.nivel - a.nivel);
+  const s = au.seg || {};
+  return `<section class="bloco">
+    <h2>Hunt <span class="mut">${esc(c.hunt?.nome ?? 'sem hunt')}</span></h2>
+    <div class="linha">${modoSeg}${metaSeg}</div>
+    ${corpo}${autoTxt}
+    ${ops.length > 1 ? `<details style="margin-top:10px;background:none;border:0"><summary style="padding:4px 0">Melhores hunts seguras <span class="mut">${ops.length}</span></summary>${opsHtml}</details>` : ''}
+    <div class="linha" style="margin-top:10px"><select data-escolha aria-label="Escolher hunt">${todas.map((h) => `<option value="${esc(h.slug)}" ${c.hunt?.slug === h.slug ? 'selected' : ''}>${esc(h.nome)} · Nv ${h.nivel}${estimadas[h.slug] ? ` · ${curto(estimadas[h.slug])}` : ''}</option>`).join('')}</select><button class="bt" data-acao="irEscolha">Ir para esta</button></div>
+    ${au.modo === 'auto' ? '<div class="mut" style="font-size:12px;margin-top:6px">Escolher uma hunt aqui pausa o automático por 2 h.</div>' : ''}
+    <details data-edit style="margin-top:10px;background:none;border:0"><summary style="padding:4px 0">Segurança <span class="mut">até ${num(s.ttkMax)} s · fraqueza ${FRAQ[s.fraqMax] ?? '—'} · golpe até ${num(s.riscoMax)}%</span></summary>
+      <div data-seg class="linha" style="margin-top:6px">
+        <label>Derrotar cada selvagem em até <input type="number" min="1" max="120" data-s="ttkMax" value="${s.ttkMax}"> s</label>
+        <label>Fraqueza aceita <select data-s="fraqMax">${[1, 2, 4, 99].map((v) => `<option value="${v}" ${Number(s.fraqMax) === v ? 'selected' : ''}>${FRAQ[v]}</option>`).join('')}</select></label>
+        <label>Golpe recebido tira no máximo <input type="number" min="5" max="100" data-s="riscoMax" value="${s.riscoMax}"> % da vida</label>
+        <label>Trocar se render <input type="number" min="0" max="500" data-s="margem" value="${s.margem}"> % a mais</label>
+        <label><input type="checkbox" data-s="comprovada" ${s.comprovada !== false ? 'checked' : ''}> Liberar hunts iguais ou mais leves que a atual</label>
+        <button class="bt prim peq" data-acao="salvarSeg">Salvar segurança</button><span class="msg mut" data-msg="seg"></span>
+      </div></details>
+  </section>`;
 }
 
 function render() {
-  if (!estado) return;
-  const cs = estado.contas;
-  const xp = cs.reduce((a, c) => a + c.sessao.xpH, 0);
-  const ou = cs.reduce((a, c) => a + c.sessao.ouroH, 0);
-  $('#topo').textContent = `v${estado.versao} · ${cs.length} ${cs.length === 1 ? 'conta' : 'contas'} · ${curto(xp)} XP/h · ${curto(ou)} ouro/h · memória ${estado.memoriaMB} MB`;
-  if (!cs.length) {
-    $('#seletor').innerHTML = '';
-    $('#conteudo').innerHTML = '<div class="calmo">Nenhuma conta ainda. Siga o passo de adicionar contas no guia.</div>';
-    return;
-  }
+  if (!dados) return;
+  const cs = dados.contas;
+  const xp = cs.reduce((a, c) => a + c.sessao.xpH, 0), ou = cs.reduce((a, c) => a + c.sessao.ouroH, 0);
+  $('#topo').textContent = `${curto(xp)} XP/h · ${curto(ou)} ouro/h · v${dados.versao}`;
+  if (!cs.length) { $('#contas').innerHTML = ''; $('#conteudo').innerHTML = '<div class="bloco vazio">Nenhuma conta na box ainda.</div>'; return; }
   if (!cs.some((c) => c.nick === sel)) sel = cs[0].nick;
-  $('#seletor').innerHTML = cs.map((c) => `<button class="${c.nick === sel ? 'on' : ''}" data-sel="${esc(c.nick)}"><span class="ponto n${cor(c)}"></span>${esc(c.nick)} <span class="mut">${curto(c.sessao.xpH)}</span></button>`).join('');
-  const abertos = [...document.querySelectorAll('details[open] > summary')].map((s) => s.textContent);
-  $('#conteudo').innerHTML = cartao(cs.find((c) => c.nick === sel));
-  for (const s of document.querySelectorAll('details > summary')) if (abertos.includes(s.textContent)) s.parentElement.open = true;
+  $('#contas').innerHTML = cs.map((c) => `<button class="chip ${c.nick === sel ? 'on' : ''}" data-sel="${esc(c.nick)}"><span class="ponto n${cor(c)}"></span><b>${esc(c.nick)}</b><span>${curto(c.sessao.xpH)}</span></button>`).join('');
+  const c = cs.find((x) => x.nick === sel), s = c.sessao, k = cor(c);
+  const abertos = new Set($$('details[open]').map((d) => d.dataset.id));
+  const repo = c.cfg.reposicao, merc = c.cfg.mercado, regras = repo.regras || {};
+  const qB = (id) => c.bolas.find((b) => String(b.id) === String(id))?.q ?? 0, qI = (id) => c.itens.find((b) => String(b.id) === String(id))?.q ?? 0;
+  const compraLin = (kind, i, q) => `<tr><td>${esc(i.nome)}</td><td class="n">${num(q)}</td><td class="n mut">${num(i.preco)}</td><td class="n" style="white-space:nowrap">${[100, 500, 1000].map((x) => `<button class="bt peq" data-comprar="${kind}|${esc(i.id)}|${x}">+${x >= 1000 ? '1k' : x}</button>`).join(' ')}</td></tr>`;
+  const regraLin = (kind, i) => { const key = `${kind}:${i.id}`, r = regras[key] || { ativo: false, min: 100, lote: 500 }; return `<tr data-regra="${key}"><td><label><input type="checkbox" data-c="ativo" ${r.ativo ? 'checked' : ''}> ${esc(i.nome)}</label></td><td><input type="number" min="0" data-c="min" value="${r.min}"></td><td><input type="number" min="1" max="9999" data-c="lote" value="${r.lote}"></td></tr>`; };
+  const precos = c.precosMercado || {}, mIds = [...new Set([...Object.keys(precos), ...Object.keys(merc.itens || {})])];
+  const mercLin = (id) => { const r = merc.itens[id] || { ativo: false, acumular: 20, guardar: 0, modo: 'media' }, it = c.itens.find((x) => String(x.id) === String(id)), p = precos[id] || {}; return `<tr data-merc="${esc(id)}"><td><label><input type="checkbox" data-c="ativo" ${r.ativo ? 'checked' : ''}> ${esc(it?.nome ?? 'Item ' + id)}</label></td><td class="n">${num(it?.q ?? 0)}</td><td class="n mut">${p.media ? curto(p.media) : '—'}</td><td><input type="number" min="5" data-c="acumular" value="${r.acumular}"></td><td><input type="number" min="0" data-c="guardar" value="${r.guardar}"></td><td><select data-c="modo"><option value="media" ${r.modo === 'media' ? 'selected' : ''}>média</option><option value="menor" ${r.modo === 'menor' ? 'selected' : ''}>menor − 1</option></select></td></tr>`; };
+  const ehMain = dados.main === c.nick;
+  $('#conteudo').innerHTML = `
+  <section class="bloco" data-nick="${esc(c.nick)}">
+    <div class="cab"><span class="nick">${esc(c.nick)}</span><span class="mut">Treinador Nv ${num(c.nivel)}</span><span class="estado ${k ? 'n' + k : ''}">${esc(textoStatus(c))}</span></div>
+    <div class="sub">${c.pokemon ? `${esc(c.pokemon.nome)} Nv ${num(c.pokemon.nivel)}` : '—'} · ${esc(c.hunt?.nome ?? 'sem hunt')}</div>
+    ${c.motivo ? `<div class="alerta">${esc(c.motivo)}</div>` : ''}
+    <div class="nums"><div><b>${curto(s.xpH)}</b><span>XP/h</span></div><div><b>${curto(s.ouroH)}</b><span>ouro/h</span></div><div><b>${curto(c.ouro)}</b><span>ouro</span></div><div><b>${num(s.abates)}</b><span>abates</span></div><div><b>${num(s.capturas)}</b><span>capturas</span></div><div><b>${num(s.shinies)}</b><span>shinies</span></div></div>
+    ${s.drops.length ? `<div style="margin-top:8px">${s.drops.slice(0, 6).map((d) => `<span class="tag">${esc(d.nome)} <b>${num(d.q)}</b></span>`).join('')}</div>` : ''}
+    <div class="linha" style="margin-top:10px">${c.pausada ? '<button class="bt prim" data-acao="retomar">Retomar conta</button>' : '<button class="bt" data-acao="pausar">Pausar conta</button>'}</div>
+  </section>
+  <div data-nick="${esc(c.nick)}">${blocoHunt(c)}</div>
+  <details data-id="comprar" data-nick="${esc(c.nick)}"><summary>Comprar <span class="mut">pokébolas e cura</span></summary><div class="corpo"><div class="rolar"><table><tr><th>Item</th><th class="n">Tem</th><th class="n">Preço</th><th></th></tr>${c.catalogoBolas.map((b) => compraLin('ball', b, qB(b.id))).join('')}${c.catalogoCura.map((i) => compraLin('item', i, qI(i.id))).join('')}</table></div><div class="msg mut" data-msg="compra">Toque duas vezes para confirmar a compra.</div></div></details>
+  <details data-id="repo" data-edit data-nick="${esc(c.nick)}"><summary>Reposição automática <span class="mut ${repo.ativo ? 'ok' : ''}">${repo.ativo ? 'ligada' : 'desligada'}</span></summary><div class="corpo" data-repo>
+    <div class="linha"><label><input type="checkbox" data-c="repoAtivo" ${repo.ativo ? 'checked' : ''}> Ligada</label><label>Guardar sempre <input type="number" min="0" step="1000" data-c="reservaOuro" value="${repo.reservaOuro || 0}"> de ouro</label></div>
+    <div class="rolar"><table><tr><th>Item</th><th>Comprar abaixo de</th><th>Quantidade</th></tr>${c.catalogoBolas.map((b) => regraLin('ball', b)).join('')}${c.catalogoCura.map((i) => regraLin('item', i)).join('')}</table></div>
+    <div class="linha"><button class="bt prim" data-acao="salvarRepo">Salvar reposição</button><span class="msg mut" data-msg="repo"></span></div></div></details>
+  ${ehMain ? '' : `<details data-id="merc" data-edit data-nick="${esc(c.nick)}"><summary>Venda no mercado <span class="mut ${merc.ativo ? 'ok' : ''}">${merc.ativo ? 'ligada' : 'desligada'}</span></summary><div class="corpo" data-mercfg>
+    <div class="linha"><label><input type="checkbox" data-c="mercAtivo" ${merc.ativo ? 'checked' : ''}> Vender automaticamente</label><label>Máx. <input type="number" min="1" max="60" data-c="maxHora" value="${merc.maxHora || 6}"> anúncios/h</label><button class="bt peq" data-acao="precos">Atualizar preços</button></div>
+    ${mIds.length ? `<div class="rolar"><table><tr><th>Item</th><th class="n">Tem</th><th class="n">Média</th><th>Juntar</th><th>Guardar</th><th>Preço</th></tr>${mIds.map(mercLin).join('')}</table></div>` : '<div class="mut">Toque em "Atualizar preços" para listar os itens que têm mercado.</div>'}
+    <div class="linha"><button class="bt prim" data-acao="salvarMerc">Salvar venda</button><span class="msg mut" data-msg="merc"></span></div></div></details>`}
+  <details data-id="ativ"><summary>Atividade <span class="mut">${c.eventos[0] ? hora(c.eventos[0].t) : ''}</span></summary><div class="corpo">${c.eventos.map((e) => `<div class="ev ${e.tipo === 'erro' ? 'n1' : e.tipo === 'ok' ? 'ok' : 'mut'}">${hora(e.t)} · ${esc(e.txt)}</div>`).join('') || '<div class="mut">Nada ainda.</div>'}</div></details>
+  <details data-id="mais" data-nick="${esc(c.nick)}"><summary>Conta</summary><div class="corpo"><div class="linha">${ehMain ? '<span class="mut">Conta principal: não vende no mercado.</span>' : '<button class="bt peq" data-acao="main">Marcar como principal</button>'}<button class="bt peq" data-acao="remover">Remover da box</button></div><div class="mut" style="font-size:12px">Box usando ${dados.memoriaMB} MB de memória.</div></div></details>`;
+  for (const d of $$('details[data-id]')) if (abertos.has(d.dataset.id)) d.open = true;
 }
 
-async function atualizar(forcar) {
-  if (editando && !forcar) return;
+async function atualizar() {
+  if (editando) return;
   try {
-    estado = await (await fetch('/api/estado', { cache: 'no-store' })).json();
+    dados = await (await fetch('/api/estado', { cache: 'no-store' })).json();
+    ultimaOk = Date.now();
     render();
-  } catch {
-    $('#topo').textContent = 'sem conexão com a box';
-  }
+  } catch { $('#topo').textContent = 'sem conexão com a box'; }
 }
 
 document.addEventListener('focusin', (e) => { if (e.target.closest('[data-edit]')) editando = true; });
-document.addEventListener('focusout', () => setTimeout(() => { if (!document.activeElement?.closest?.('[data-edit]')) editando = false; }, 300));
+document.addEventListener('focusout', () => setTimeout(() => { if (!document.activeElement?.closest?.('[data-edit]')) editando = false; }, 400));
 document.addEventListener('click', (e) => {
-  const s = e.target.closest('[data-sel]');
-  if (s) { sel = s.dataset.sel; localStorage.setItem('pb-sel', sel); editando = false; render(); return; }
-  const card = e.target.closest('[data-nick]');
-  if (!card) return;
-  const nick = card.dataset.nick;
+  const chip = e.target.closest('[data-sel]');
+  if (chip) { sel = chip.dataset.sel; localStorage.setItem('pb-sel', sel); editando = false; render(); return; }
+  const box = e.target.closest('[data-nick]');
+  const nick = box?.dataset.nick || sel;
+  const m = e.target.closest('[data-modo]'); if (m) return acao({ tipo: 'huntCfg', nick, modo: m.dataset.modo });
+  const mt = e.target.closest('[data-meta]'); if (mt) return acao({ tipo: 'huntCfg', nick, meta: mt.dataset.meta });
+  const ir = e.target.closest('[data-ir]'); if (ir) return acao({ tipo: 'hunt', nick, slug: ir.dataset.ir });
   const comp = e.target.closest('[data-comprar]');
   if (comp) {
     const [kind, id, qty] = comp.dataset.comprar.split('|');
-    if (comp.dataset.conf !== '1') { comp.dataset.conf = '1'; comp.textContent = 'Confirmar'; comp.classList.add('prim'); setTimeout(() => render(), 4000); return; }
-    acao({ tipo: 'comprar', nick, kind, id, qty: Number(qty) }, $('[data-msg=compra]', card));
-    return;
+    if (!comp.classList.contains('conf')) { comp.classList.add('conf'); comp.textContent = 'Confirmar'; editando = true; setTimeout(() => { editando = false; render(); }, 4000); return; }
+    return acao({ tipo: 'comprar', nick, kind, id, qty: Number(qty) }, $('[data-msg=compra]'));
   }
-  const b = e.target.closest('[data-acao]');
-  if (!b) return;
+  const b = e.target.closest('[data-acao]'); if (!b) return;
   const a = b.dataset.acao;
-  if (a === 'pausar' || a === 'retomar' || a === 'cancelarHunt' || a === 'main') acao({ tipo: a, nick });
-  else if (a === 'irHunt') acao({ tipo: 'hunt', nick, slug: $('[data-hunt]', card).value });
-  else if (a === 'precos') { acao({ tipo: 'precosMercado', nick }, $('[data-msg=merc]', card)); setTimeout(() => { editando = false; atualizar(true); }, 3000); }
-  else if (a === 'remover') { if (confirm(`Remover ${nick} da box? O token dela será apagado da box.`)) acao({ tipo: 'remover', nick }); }
-  else if (a === 'salvarRepo') {
-    const box = $('[data-repo]', card);
-    const regras = {};
-    for (const tr of box.querySelectorAll('tr[data-regra]')) regras[tr.dataset.regra] = { ativo: $('[data-c=ativo]', tr).checked, min: Number($('[data-c=min]', tr).value) || 0, lote: Number($('[data-c=lote]', tr).value) || 1 };
-    editando = false;
-    acao({ tipo: 'salvarCfg', nick, reposicao: { ativo: $(':scope > .linha [data-c=ativo]', box).checked, reservaOuro: Number($('[data-c=reservaOuro]', box).value) || 0, regras } }, $('[data-msg=repo]', card));
-  } else if (a === 'salvarMerc') {
-    const box = $('[data-mercfg]', card);
-    const itens = {};
-    for (const tr of box.querySelectorAll('tr[data-merc]')) itens[tr.dataset.merc] = { ativo: $('[data-c=ativo]', tr).checked, acumular: Math.max(5, Number($('[data-c=acumular]', tr).value) || 20), guardar: Number($('[data-c=guardar]', tr).value) || 0, modo: $('[data-c=modo]', tr).value, minPreco: 0 };
-    editando = false;
-    acao({ tipo: 'salvarCfg', nick, mercado: { ativo: $(':scope > .linha [data-c=ativo]', box).checked, maxHora: Number($('[data-c=maxHora]', box).value) || 6, itens } }, $('[data-msg=merc]', card));
-  }
+  if (['pausar', 'retomar', 'cancelarHunt', 'main'].includes(a)) acao({ tipo: a, nick });
+  else if (a === 'retomarAuto') acao({ tipo: 'huntCfg', nick, retomarAuto: true });
+  else if (a === 'irEscolha') acao({ tipo: 'hunt', nick, slug: $('[data-escolha]').value });
+  else if (a === 'precos') { acao({ tipo: 'precosMercado', nick }, $('[data-msg=merc]')); setTimeout(atualizar, 3000); }
+  else if (a === 'remover') { if (confirm(`Remover ${nick} da box? O acesso dela será apagado da box.`)) acao({ tipo: 'remover', nick }); }
+  else if (a === 'salvarSeg') { const g = $('[data-seg]'); acao({ tipo: 'huntCfg', nick, seg: { ttkMax: Number($('[data-s=ttkMax]', g).value), fraqMax: Number($('[data-s=fraqMax]', g).value), riscoMax: Number($('[data-s=riscoMax]', g).value), margem: Number($('[data-s=margem]', g).value), comprovada: $('[data-s=comprovada]', g).checked } }, $('[data-msg=seg]')); }
+  else if (a === 'salvarRepo') { const g = $('[data-repo]'), regras = {}; for (const tr of $$('tr[data-regra]', g)) regras[tr.dataset.regra] = { ativo: $('[data-c=ativo]', tr).checked, min: Number($('[data-c=min]', tr).value) || 0, lote: Number($('[data-c=lote]', tr).value) || 1 }; acao({ tipo: 'salvarCfg', nick, reposicao: { ativo: $('[data-c=repoAtivo]', g).checked, reservaOuro: Number($('[data-c=reservaOuro]', g).value) || 0, regras } }, $('[data-msg=repo]')); }
+  else if (a === 'salvarMerc') { const g = $('[data-mercfg]'), itens = {}; for (const tr of $$('tr[data-merc]', g)) itens[tr.dataset.merc] = { ativo: $('[data-c=ativo]', tr).checked, acumular: Math.max(5, Number($('[data-c=acumular]', tr).value) || 20), guardar: Number($('[data-c=guardar]', tr).value) || 0, modo: $('[data-c=modo]', tr).value, minPreco: 0 }; acao({ tipo: 'salvarCfg', nick, mercado: { ativo: $('[data-c=mercAtivo]', g).checked, maxHora: Number($('[data-c=maxHora]', g).value) || 6, itens } }, $('[data-msg=merc]')); }
 });
-atualizar(true);
-setInterval(() => atualizar(false), 3000);
+atualizar();
+setInterval(atualizar, 3000);
+setInterval(() => { if (ultimaOk && Date.now() - ultimaOk > 12000) $('#topo').textContent = 'sem resposta da box há alguns segundos…'; }, 3000);
 </script>
 </body>
 </html>

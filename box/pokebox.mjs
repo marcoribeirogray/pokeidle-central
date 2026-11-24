@@ -3,14 +3,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { carregarEspecies, especies, novaInteligencia, aoEvento, aoCampo, acompanhar, recomendar, cicloAuto, resumoAuto, salvarInteligencia, AUTO } from './motor.mjs';
 
-const VERSAO = '0.1.0';
+const VERSAO = '0.2.0';
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const DADOS = process.env.POKEBOX_DADOS || path.join(process.env.HOME || AQUI, 'pokebox-dados');
 const NOVAS = path.join(DADOS, 'novas');
 const ARQ_CONTAS = path.join(DADOS, 'contas.json');
 const ARQ_CFG = path.join(DADOS, 'config.json');
 const ARQ_PID = path.join(DADOS, 'pokebox.pid');
+const ARQ_IA = path.join(DADOS, 'inteligencia.json');
 const PORTA = Number(process.env.POKEBOX_PORTA || 8377);
 const URL_WS = process.env.POKEBOX_WS || 'wss://pokeidle.io';
 const ORIGEM = 'https://pokeidle.io';
@@ -55,6 +57,7 @@ const limparPid = () => {
 process.on('exit', limparPid);
 for (const sinal of ['SIGINT', 'SIGTERM']) process.on(sinal, () => process.exit(0));
 
+const iaSalva = lerJson(ARQ_IA, {});
 const cfgPadrao = () => ({ contas: {} });
 let cfg = { ...cfgPadrao(), ...lerJson(ARQ_CFG, {}) };
 const salvarCfg = () => gravarJson(ARQ_CFG, cfg);
@@ -63,6 +66,7 @@ const cfgConta = (nick) => {
   const c = cfg.contas[nick];
   c.reposicao ??= { ativo: false, reservaOuro: 0, regras: {} };
   c.mercado ??= { ativo: false, maxHora: 6, itens: {} };
+  c.hunt ??= { modo: 'manual', meta: 'off', seg: {} };
   return c;
 };
 
@@ -73,7 +77,7 @@ const log = (nick, txt) => console.log(`${new Date().toISOString().slice(11, 19)
 let catalogoItens = {};
 const carregarCatalogo = async () => {
   try {
-    const r = await fetch(`${ORIGEM}/assets/items.json`, { headers: { 'User-Agent': 'Mozilla/5.0 PokeBox' } });
+    const r = await fetch(`${process.env.POKEBOX_ASSETS || ORIGEM}/assets/items.json`, { headers: { 'User-Agent': 'Mozilla/5.0 PokeBox' } });
     const j = await r.json();
     for (const i of j.items ?? []) if (i?.id != null) catalogoItens[i.id] = { nome: i.name, cat: i.category, preco: num(i.npcPrice) };
   } catch (e) {
@@ -103,6 +107,23 @@ class Conta {
     this.eventos = [];
     this.merc = { dados: null, ts: 0, pendente: null, ultimo: {}, trava: {}, porHora: [], ultimoCiclo: 0 };
     this.repo = { ultima: 0, gastoHora: [] };
+    this.mobs = new Map();
+    this.ia = novaInteligencia(iaSalva[this.nick]);
+    this.tabelaTipos = null;
+    this.ampliacao = 1.5;
+    this.multHp = 5;
+    this.rec = null;
+    this.recEm = 0;
+  }
+
+  recomendacao() {
+    const ch = cfgConta(this.nick).hunt;
+    if (ch.meta === 'off' || this.status !== 'online') return null;
+    if (!this.rec || Date.now() - this.recEm > 5000) {
+      this.rec = recomendar(this, ch);
+      this.recEm = Date.now();
+    }
+    return this.rec;
   }
 
   evento(txt, tipo = 'info') {
@@ -222,6 +243,10 @@ class Conta {
         this.mesclarEstado(m.estado);
         if (Array.isArray(m.hunts)) this.hunts = m.hunts;
         if (Array.isArray(m.catalogoBolas)) this.bolas = m.catalogoBolas;
+        if (m.tabelaTipos) this.tabelaTipos = m.tabelaTipos;
+        if (m.ampliacaoHunt) this.ampliacao = Number(m.ampliacaoHunt) || 1.5;
+        if (m.multHpSelvagem) this.multHp = Number(m.multHpSelvagem) || 5;
+        this.mobs.clear();
         this.status = 'online';
         this.motivo = '';
         this.tentativas = 0;
@@ -231,7 +256,19 @@ class Conta {
         this.mesclarEstado(m.estado ?? m);
         break;
       case 'batalha':
-        for (const e of m.ev ?? []) this.eventoBatalha(e);
+        for (const e of m.ev ?? []) {
+          this.eventoBatalha(e);
+          try {
+            aoEvento(this, e);
+          } catch {}
+        }
+        break;
+      case 'campo.init':
+        this.mobs.clear();
+        aoCampo(this, m);
+        break;
+      case 'campo':
+        aoCampo(this, m);
         break;
       case 'market':
         if (m.aba === 'itens') {
@@ -435,6 +472,7 @@ class Conta {
       },
       bolas: Object.entries(e.balls ?? {}).filter(([, q]) => num(q) > 0).map(([id, q]) => ({ id, nome: this.nomeItem(id), q: num(q), preco: this.precoLoja('ball', id) })),
       itens: Object.entries(e.items ?? {}).filter(([, q]) => num(q) > 0).map(([id, q]) => ({ id, nome: this.nomeItem(id), cat: catalogoItens[id]?.cat ?? '', q: num(q), preco: this.precoLoja('item', id) })),
+      inteligencia: { recomendacao: this.recomendacao(), auto: resumoAuto(this, cfgConta(this.nick).hunt), especies: !!especies.mapa },
       catalogoBolas: this.bolas.filter((b) => b.compravel).map((b) => ({ id: b.id, nome: b.nome, preco: b.priceGold })),
       catalogoCura: Object.entries(catalogoItens).filter(([, i]) => (i.cat === 'heal' || i.cat === 'revive') && i.preco > 0).map(([id, i]) => ({ id, nome: i.nome, preco: i.preco })),
       precosMercado: this.merc.dados ? Object.fromEntries(Object.keys(e.items ?? {}).filter((id) => this.merc.dados.medias?.[id] || this.merc.dados.resumo?.[id]).map((id) => [id, { media: num(this.merc.dados.medias?.[id]?.gold?.media), menor: num(this.merc.dados.resumo?.[id]?.minGold) }])) : {},
@@ -528,9 +566,35 @@ const acao = (corpo) => {
       if (!c) return 'conta não encontrada';
       c.retomar();
       return null;
-    case 'hunt':
+    case 'hunt': {
       if (!c) return 'conta não encontrada';
-      return c.iniciarTroca(String(corpo.slug));
+      const erro = c.iniciarTroca(String(corpo.slug));
+      if (!erro && cfgConta(c.nick).hunt.modo === 'auto') {
+        c.ia.pausaManualAte = agora() + AUTO.pausaManual;
+        c.evento('Você escolheu a hunt: o automático fica pausado por 2 h nesta conta');
+      }
+      return erro;
+    }
+    case 'huntCfg': {
+      if (!c) return 'conta não encontrada';
+      const h = cfgConta(c.nick).hunt;
+      if (['manual', 'auto'].includes(corpo.modo)) h.modo = corpo.modo;
+      if (['off', 'xp', 'ouro'].includes(corpo.meta)) h.meta = corpo.meta;
+      if (corpo.seg && typeof corpo.seg === 'object') {
+        const sg = corpo.seg;
+        h.seg = {
+          ttkMax: Math.min(120, Math.max(1, Number(sg.ttkMax) || 8)),
+          fraqMax: [1, 2, 4, 99].includes(Number(sg.fraqMax)) ? Number(sg.fraqMax) : 2,
+          riscoMax: Math.min(100, Math.max(5, Number(sg.riscoMax) || 20)),
+          margem: Math.min(500, Math.max(0, Number(sg.margem) || 20)),
+          comprovada: sg.comprovada !== false,
+        };
+      }
+      if (corpo.modo === 'auto' || corpo.retomarAuto) c.ia.pausaManualAte = 0;
+      c.rec = null;
+      salvarCfg();
+      return null;
+    }
     case 'cancelarHunt':
       if (c?.troca) c.concluirTroca('cancelada por você');
       return null;
@@ -609,6 +673,24 @@ for (const d of lerJson(ARQ_CONTAS, [])) {
   if (d?.nick && d?.token && contas.size < MAX_CONTAS) contas.set(d.nick, new Conta(d));
 }
 await carregarCatalogo();
+carregarEspecies();
+const salvarIa = () => {
+  try {
+    gravarJson(ARQ_IA, Object.fromEntries([...contas.values()].map((c) => [c.nick, salvarInteligencia(c.ia)])));
+  } catch {}
+};
+process.on('exit', salvarIa);
+setInterval(salvarIa, 60000);
+setInterval(() => {
+  if (!especies.mapa && !especies.carregando) carregarEspecies();
+  for (const c of contas.values()) {
+    try {
+      cicloAuto(c, cfgConta(c.nick).hunt);
+    } catch (e) {
+      log(c.nick, `erro no automático: ${e.message}`);
+    }
+  }
+}, 5000);
 importarNovas();
 let atraso = 0;
 for (const c of contas.values()) {
@@ -622,6 +704,7 @@ setInterval(() => {
   for (const c of contas.values()) {
     try {
       c.processarTroca();
+      acompanhar(c);
       c.cicloReposicao();
       c.cicloMercado();
       if (c.status === 'online' && c.ultimaMsg && agora() - c.ultimaMsg > 120000) {
