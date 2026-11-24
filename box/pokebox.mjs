@@ -454,6 +454,12 @@ const importarNovas = () => {
   } catch {}
   for (const nome of arquivos) {
     const arq = path.join(NOVAS, nome);
+    try {
+      const st = fs.statSync(arq);
+      if (!st.isFile() || st.size === 0 || agora() - st.mtimeMs < 3000) continue;
+    } catch {
+      continue;
+    }
     let texto = '';
     try {
       texto = fs.readFileSync(arq, 'utf8').replace(/^﻿/, '').trim();
