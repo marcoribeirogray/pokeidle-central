@@ -1,11 +1,13 @@
 import http from 'node:http';
+import os from 'node:os';
+import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { carregarEspecies, especies, novaInteligencia, aoEvento, aoCampo, acompanhar, recomendar, cicloAuto, resumoAuto, salvarInteligencia, AUTO } from './motor.mjs';
 
-const VERSAO = '0.2.0';
+const VERSAO = '0.3.0';
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const DADOS = process.env.POKEBOX_DADOS || path.join(process.env.HOME || AQUI, 'pokebox-dados');
 const NOVAS = path.join(DADOS, 'novas');
@@ -13,6 +15,8 @@ const ARQ_CONTAS = path.join(DADOS, 'contas.json');
 const ARQ_CFG = path.join(DADOS, 'config.json');
 const ARQ_PID = path.join(DADOS, 'pokebox.pid');
 const ARQ_IA = path.join(DADOS, 'inteligencia.json');
+const ARQ_PARADO = path.join(DADOS, 'parado');
+const URL_VERSAO = 'https://raw.githubusercontent.com/marcoribeirogray/pokeidle-central/main/box/pokebox.mjs';
 const PORTA = Number(process.env.POKEBOX_PORTA || 8377);
 const URL_WS = process.env.POKEBOX_WS || 'wss://pokeidle.io';
 const ORIGEM = 'https://pokeidle.io';
@@ -91,6 +95,11 @@ class Conta {
     this.token = dados.token;
     this.dispositivo = dados.dispositivo || crypto.randomUUID();
     this.pausada = !!dados.pausada;
+    this.pausadaAte = Number(dados.pausadaAte) || 0;
+    this.onlineDesde = 0;
+    this.quedasCurtas = [];
+    this.quedasHoje = 0;
+    this.ultimasMsgs = [];
     this.ws = null;
     this.estado = {};
     this.hunts = [];
@@ -133,7 +142,7 @@ class Conta {
   }
 
   dadosParaSalvar() {
-    return { nick: this.nick, token: this.token, dispositivo: this.dispositivo, pausada: this.pausada };
+    return { nick: this.nick, token: this.token, dispositivo: this.dispositivo, pausada: this.pausada, pausadaAte: this.pausadaAte };
   }
 
   conectar() {
@@ -173,7 +182,26 @@ class Conta {
       if (this.ws !== ws) return;
       this.ws = null;
       if (this.pausada) return;
-      this.agendar(`conexão fechada (${ev.code}${ev.reason ? `: ${ev.reason}` : ''})`);
+      const t = agora();
+      const durou = this.onlineDesde ? t - this.onlineDesde : 0;
+      this.onlineDesde = 0;
+      this.quedasHoje += 1;
+      const razao = String(ev.reason ?? '');
+      if (/tomad|outro|dispositivo|sess|duplic|replaced|another/i.test(razao)) {
+        this.pausar(`a conta foi aberta em outro lugar (${razao}). Quando terminar lá, feche a aba sem sair e clique em Retomar`);
+        return;
+      }
+      if (durou > 0 && durou < 90000) this.quedasCurtas.push(t);
+      this.quedasCurtas = this.quedasCurtas.filter((x) => t - x < 6 * 60000);
+      if (this.quedasCurtas.length >= 2) {
+        this.quedasCurtas = [];
+        this.pausar('a conexão caiu logo depois de entrar duas vezes seguidas: a conta provavelmente está aberta em outro lugar. Quando terminar lá, feche a aba sem sair e clique em Retomar');
+        return;
+      }
+      if (durou >= 90000) {
+        this.tentativas = Math.max(this.tentativas, 3);
+      }
+      this.agendar(`conexão fechada (${ev.code}${razao ? `: ${razao}` : ''})`);
     });
     ws.addEventListener('error', () => {});
   }
@@ -188,7 +216,8 @@ class Conta {
     this.timerReconexao = setTimeout(() => this.conectar(), espera);
   }
 
-  pausar(motivo) {
+  pausar(motivo, ate = 0) {
+    this.pausadaAte = ate;
     this.pausada = true;
     this.status = 'pausada';
     this.motivo = motivo;
@@ -204,6 +233,8 @@ class Conta {
   }
 
   retomar() {
+    this.pausadaAte = 0;
+    this.quedasCurtas = [];
     this.pausada = false;
     this.tentativas = 0;
     this.motivo = '';
@@ -232,6 +263,14 @@ class Conta {
   }
 
   receber(m) {
+    if (m.t !== 'batalha' && m.t !== 'pong' && m.t !== 'chat') {
+      this.ultimasMsgs.push({ t: agora(), tipo: String(m.t), chaves: Object.keys(m).slice(0, 8).join(',') });
+      if (this.ultimasMsgs.length > 6) this.ultimasMsgs.shift();
+    }
+    if (/tomad|outroDisp|sessao\.(nova|outra|encerrad)|kicked|duplicad/i.test(`${m.t} ${m.chave ?? ''} ${m.msg ?? ''}`)) {
+      this.pausar(`o jogo avisou que a conta foi aberta em outro lugar (${m.t}). Quando terminar lá, feche a aba sem sair e clique em Retomar`);
+      return;
+    }
     if (typeof m.token === 'string' && m.token.length >= 16 && m.token !== this.token && !['chat', 'chat.historico'].includes(m.t)) {
       this.token = m.token;
       salvarContas();
@@ -248,6 +287,7 @@ class Conta {
         if (m.multHpSelvagem) this.multHp = Number(m.multHpSelvagem) || 5;
         this.mobs.clear();
         this.status = 'online';
+        this.onlineDesde = agora();
         this.motivo = '';
         this.tentativas = 0;
         this.evento(`Conectada: treinador Nv ${num(this.estado.level)}, ${this.nomeHunt(this.estado.huntSlug)}`, 'ok');
@@ -457,6 +497,8 @@ class Conta {
       status: this.status,
       motivo: this.motivo,
       pausada: this.pausada,
+      pausadaAte: this.pausadaAte,
+      quedasHoje: this.quedasHoje,
       nivel: num(e.level),
       ouro: num(e.gold),
       noCentro: !!e.noCentro,
@@ -613,6 +655,35 @@ const acao = (corpo) => {
       salvarCfg();
       return null;
     }
+    case 'liberar':
+      if (!c) return 'conta não encontrada';
+      c.pausar('liberada para você jogar em outro lugar; volta sozinha', agora() + Math.min(12, Math.max(1, Number(corpo.horas) || 2)) * 3600000);
+      return null;
+    case 'pausarTodas':
+      for (const x of contas.values()) if (!x.pausada) x.pausar('pausada pelo painel (todas)');
+      return null;
+    case 'retomarTodas':
+      for (const x of contas.values()) if (x.pausada) x.retomar();
+      return null;
+    case 'saudeCfg':
+      cfg.saude = { tempMax: Math.min(95, Math.max(60, Number(corpo.tempMax) || 80)), autoResfriar: corpo.autoResfriar !== false, pausaMin: Math.min(120, Math.max(5, Number(corpo.pausaMin) || 20)) };
+      salvarCfg();
+      return null;
+    case 'reiniciar':
+      setTimeout(() => process.exit(0), 500);
+      return null;
+    case 'desligar':
+      try {
+        fs.writeFileSync(ARQ_PARADO, String(agora()));
+      } catch {}
+      setTimeout(() => process.exit(0), 500);
+      return null;
+    case 'atualizar': {
+      const repo = path.resolve(AQUI, '..');
+      const p = spawn('sh', ['-c', `git -C "${repo}" pull --ff-only > "${path.join(DADOS, 'atualizacao.log')}" 2>&1 && sleep 1 && kill ${process.pid}`], { detached: true, stdio: 'ignore' });
+      p.unref();
+      return null;
+    }
     case 'main':
       if (!c) return 'conta não encontrada';
       cfg.main = c.nick;
@@ -631,6 +702,125 @@ const acao = (corpo) => {
   }
 };
 
+const lerTemperatura = () => {
+  const vals = [];
+  try {
+    for (const z of fs.readdirSync('/sys/class/thermal')) {
+      if (!z.startsWith('thermal_zone')) continue;
+      try {
+        const v = Number(fs.readFileSync(`/sys/class/thermal/${z}/temp`, 'utf8')) || 0;
+        if (v > 0) vals.push(v > 1000 ? v / 1000 : v);
+      } catch {}
+    }
+  } catch {}
+  return vals.length ? Math.max(...vals) : null;
+};
+const lerMemoriaSistema = () => {
+  try {
+    const t = fs.readFileSync('/proc/meminfo', 'utf8');
+    const v = (k) => Number(t.match(new RegExp(`${k}:\\s+(\\d+)`))?.[1] ?? 0) / 1024;
+    return { totalMB: Math.round(v('MemTotal')), livreMB: Math.round(v('MemAvailable')) };
+  } catch {
+    return { totalMB: Math.round(os.totalmem() / 1048576), livreMB: Math.round(os.freemem() / 1048576) };
+  }
+};
+const saude = { historicoTemp: [], acima: 0, resfriandoAte: 0, versaoRemota: null, versaoEm: 0 };
+const cfgSaude = () => ({ tempMax: 80, autoResfriar: true, pausaMin: 20, ...(cfg.saude ?? {}) });
+const checarVersao = async () => {
+  if (agora() - saude.versaoEm < 30 * 60000) return;
+  saude.versaoEm = agora();
+  try {
+    const t = await (await fetch(URL_VERSAO, { headers: { 'User-Agent': 'PokeBox' } })).text();
+    saude.versaoRemota = t.match(/const VERSAO = '([^']+)'/)?.[1] ?? null;
+  } catch {}
+};
+const versaoMaior = (a, b) => {
+  const pa = String(a).split('.').map(Number);
+  const pb = String(b).split('.').map(Number);
+  for (let i = 0; i < 3; i++) if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) > (pb[i] || 0);
+  return false;
+};
+setInterval(() => {
+  const temp = lerTemperatura();
+  if (temp != null) {
+    saude.historicoTemp.push({ t: agora(), v: Math.round(temp) });
+    if (saude.historicoTemp.length > 120) saude.historicoTemp.shift();
+  }
+  const sc = cfgSaude();
+  if (temp != null && temp >= sc.tempMax) saude.acima += 1;
+  else saude.acima = 0;
+  if (sc.autoResfriar && saude.acima >= 3 && saude.resfriandoAte < agora()) {
+    saude.resfriandoAte = agora() + sc.pausaMin * 60000;
+    console.log(`Temperatura em ${Math.round(temp)} °C: pausando as contas por ${sc.pausaMin} min para esfriar.`);
+    for (const x of contas.values()) if (!x.pausada) x.pausar(`box quente (${Math.round(temp)} °C): pausa automática para esfriar`, saude.resfriandoAte);
+  }
+  for (const x of contas.values()) if (x.pausada && x.pausadaAte && agora() >= x.pausadaAte) x.retomar();
+  checarVersao();
+}, 30000);
+const resumoSaude = () => {
+  const temp = lerTemperatura();
+  const mem = lerMemoriaSistema();
+  let disco = null;
+  try {
+    const st = fs.statfsSync(DADOS);
+    disco = { livreGB: Math.round((st.bavail * st.bsize) / 1e8) / 10 };
+  } catch {}
+  const t = temp ?? 0;
+  const sc = cfgSaude();
+  const nivel = temp == null ? 0 : t >= sc.tempMax ? 2 : t >= sc.tempMax - 10 ? 1 : 0;
+  const memNivel = mem.livreMB < 150 ? 2 : mem.livreMB < 300 ? 1 : 0;
+  return {
+    temperatura: temp == null ? null : Math.round(temp),
+    temperaturaNivel: nivel,
+    historicoTemp: saude.historicoTemp.slice(-60),
+    memoria: { ...mem, pokeboxMB: Math.round(process.memoryUsage().rss / 1048576), nivel: memNivel },
+    carga: os.loadavg().map((x) => Math.round(x * 100) / 100),
+    nucleos: os.cpus().length || 4,
+    boxLigadaHa: Math.round(os.uptime()),
+    pokeboxLigadoHa: Math.round((agora() - inicio) / 1000),
+    disco,
+    resfriandoAte: saude.resfriandoAte > agora() ? saude.resfriandoAte : 0,
+    cfg: sc,
+    versao: VERSAO,
+    versaoRemota: saude.versaoRemota,
+    atualizacao: saude.versaoRemota && versaoMaior(saude.versaoRemota, VERSAO),
+    quedas: [...contas.values()].map((c) => ({ nick: c.nick, quedas: c.quedasHoje })),
+  };
+};
+
+const sessoesPainel = new Map(Object.entries(lerJson(path.join(DADOS, 'sessoes-painel.json'), {})));
+const salvarSessoesPainel = () => gravarJson(path.join(DADOS, 'sessoes-painel.json'), Object.fromEntries(sessoesPainel));
+const hashSenha = (senha, sal) => crypto.scryptSync(String(senha), sal, 32).toString('hex');
+const temSenha = () => !!cfg.senha?.hash;
+const cookieDe = (req) => Object.fromEntries(String(req.headers.cookie ?? '').split(';').map((x) => x.trim().split('=')).filter((x) => x[0]).map(([k, ...v]) => [k, v.join('=')]));
+const autenticado = (req) => {
+  if (!temSenha()) return true;
+  const id = cookieDe(req).pb;
+  const s = id && sessoesPainel.get(id);
+  return !!s && s > agora();
+};
+const tentativasLogin = { n: 0, bloqueadoAte: 0 };
+const lerCorpo = (req, cb) => {
+  let corpo = '';
+  req.on('data', (d) => {
+    corpo += d;
+    if (corpo.length > 20000) req.destroy();
+  });
+  req.on('end', () => {
+    try {
+      cb(JSON.parse(corpo || '{}'));
+    } catch {
+      cb(null);
+    }
+  });
+};
+const novaSessao = (res) => {
+  const id = crypto.randomBytes(24).toString('hex');
+  sessoesPainel.set(id, agora() + 30 * 86400000);
+  salvarSessoesPainel();
+  res.setHeader('Set-Cookie', `pb=${id}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${30 * 86400}`);
+};
+
 const servidor = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
   if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) {
@@ -640,14 +830,47 @@ const servidor = http.createServer((req, res) => {
       return responder(res, 500, 'painel.html não encontrado', 'text/plain');
     }
   }
-  if (req.method === 'GET' && url.pathname === '/api/estado') {
-    const mem = process.memoryUsage();
-    return responder(res, 200, { versao: VERSAO, main: cfg.main ?? null, memoriaMB: Math.round(mem.rss / 1048576), iniciado: inicio, contas: [...contas.values()].map((c) => c.resumo()) });
-  }
-  if (req.method === 'POST' && url.pathname === '/api/acao') {
+  if (req.method === 'POST' && ['/api/acao', '/api/login', '/api/senha'].includes(url.pathname)) {
     const origem = req.headers.origin;
     if (origem && origem !== `http://${req.headers.host}`) return responder(res, 403, { erro: 'origem não permitida' });
     if (!String(req.headers['content-type'] ?? '').includes('application/json')) return responder(res, 415, { erro: 'use JSON' });
+  }
+  if (req.method === 'POST' && url.pathname === '/api/login') {
+    return lerCorpo(req, (d) => {
+      if (tentativasLogin.bloqueadoAte > agora()) return responder(res, 429, { erro: `muitas tentativas; espere ${Math.ceil((tentativasLogin.bloqueadoAte - agora()) / 60000)} min` });
+      if (!temSenha() || !d?.senha || hashSenha(d.senha, cfg.senha.sal) !== cfg.senha.hash) {
+        tentativasLogin.n += 1;
+        if (tentativasLogin.n >= 5) {
+          tentativasLogin.bloqueadoAte = agora() + 10 * 60000;
+          tentativasLogin.n = 0;
+        }
+        return responder(res, 401, { erro: 'senha incorreta' });
+      }
+      tentativasLogin.n = 0;
+      novaSessao(res);
+      responder(res, 200, { ok: true });
+    });
+  }
+  if (req.method === 'POST' && url.pathname === '/api/senha') {
+    if (temSenha() && !autenticado(req)) return responder(res, 401, { erro: 'entre com a senha atual primeiro' });
+    return lerCorpo(req, (d) => {
+      const nova = String(d?.nova ?? '');
+      if (nova.length < 4) return responder(res, 400, { erro: 'use pelo menos 4 caracteres' });
+      const sal = crypto.randomBytes(16).toString('hex');
+      cfg.senha = { sal, hash: hashSenha(nova, sal) };
+      salvarCfg();
+      sessoesPainel.clear();
+      novaSessao(res);
+      responder(res, 200, { ok: true });
+    });
+  }
+  if (url.pathname.startsWith('/api/') && !autenticado(req)) return responder(res, 401, { erro: 'senha', precisaSenha: true });
+  if (req.method === 'GET' && url.pathname === '/api/saude') return responder(res, 200, resumoSaude());
+  if (req.method === 'GET' && url.pathname === '/api/estado') {
+    const mem = process.memoryUsage();
+    return responder(res, 200, { versao: VERSAO, temSenha: temSenha(), main: cfg.main ?? null, memoriaMB: Math.round(mem.rss / 1048576), iniciado: inicio, atualizacao: saude.versaoRemota && versaoMaior(saude.versaoRemota, VERSAO) ? saude.versaoRemota : null, resfriandoAte: saude.resfriandoAte > agora() ? saude.resfriandoAte : 0, contas: [...contas.values()].map((c) => c.resumo()) });
+  }
+  if (req.method === 'POST' && url.pathname === '/api/acao') {
     let corpo = '';
     req.on('data', (d) => {
       corpo += d;

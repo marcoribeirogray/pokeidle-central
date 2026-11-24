@@ -5,240 +5,383 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1b1018">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>PokeBox</title>
 <style>
-:root{--fundo:#1b1018;--sup:#271823;--sup2:#34212f;--linha:#4b3243;--txt:#f5ebf1;--mut:#b49bab;--ouro:#f0b43c;--verde:#74d9a5;--alerta:#ff8a8a;--aviso:#ffd36b}
-*{box-sizing:border-box}
+:root{--fundo:#1b1018;--sup:#271823;--sup2:#34212f;--linha:#4b3243;--txt:#f5ebf1;--mut:#b49bab;--ouro:#f0b43c;--verde:#74d9a5;--alerta:#ff8a8a;--aviso:#ffd36b;--nav:72px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--fundo);color:var(--txt);font:14px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-variant-numeric:tabular-nums}
+body{margin:0;background:var(--fundo);color:var(--txt);font:14px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-variant-numeric:tabular-nums;overscroll-behavior:none}
 button,select,input{font:inherit;color:inherit}
-header{position:sticky;top:0;z-index:3;background:color-mix(in srgb,var(--fundo) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--linha);padding:calc(8px + env(safe-area-inset-top)) 12px 8px}
-.topo{display:flex;align-items:baseline;gap:10px;max-width:760px;margin:0 auto}
-.topo b{font-size:16px}
-.topo .mut{font-size:12px;margin-left:auto;text-align:right}
-.contas{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;max-width:760px;margin:8px auto 0}
-.contas::-webkit-scrollbar{display:none}
-.chip{flex:none;display:inline-flex;align-items:center;gap:7px;background:var(--sup);border:1px solid var(--linha);border-radius:999px;padding:6px 12px;cursor:pointer}
-.chip.on{border-color:var(--ouro);background:var(--sup2)}
-.chip b{font-weight:600}
-.chip span{color:var(--mut);font-size:12px}
-main{max-width:760px;margin:0 auto;padding:12px 10px calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
-.ponto{width:9px;height:9px;border-radius:50%;background:var(--verde);flex:none}
-.ponto.n1{background:var(--aviso)}.ponto.n2{background:var(--alerta)}
+header{padding:calc(10px + env(safe-area-inset-top)) 14px 6px;display:flex;align-items:baseline;gap:10px;max-width:720px;margin:0 auto}
+header b{font-size:16px}
+header .mut{margin-left:auto;font-size:12px;text-align:right}
+main{max-width:720px;margin:0 auto;padding:6px 12px calc(var(--nav) + 24px + env(safe-area-inset-bottom))}
 .mut{color:var(--mut)}.ok{color:var(--verde)}.n1{color:var(--aviso)}.n2{color:var(--alerta)}
-.bloco{background:var(--sup);border:1px solid var(--linha);border-radius:14px;padding:12px}
-.cab{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.cab .nick{font-size:18px;font-weight:700}
-.estado{margin-left:auto;font-size:12.5px;padding:2px 10px;border-radius:999px;background:#1f4d34;color:#c8f5dc}
-.estado.n1{background:#5a4512;color:#ffe9b0}.estado.n2{background:#6e2230;color:#ffd9dd}
-.sub{margin-top:4px;color:var(--mut)}
-.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
-.nums div{background:var(--sup2);border-radius:10px;padding:8px 10px}
-.nums b{display:block;font-size:18px;line-height:1.2}
-.nums span{color:var(--mut);font-size:11.5px}
-.mini{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;color:var(--mut)}
-.mini b{color:var(--txt);font-weight:600}
-.alerta{margin-top:10px;background:#3d2b12;border:1px solid #8a6a2a;border-radius:10px;padding:9px 11px}
-h2{margin:0 0 8px;font-size:14px;display:flex;align-items:center;gap:8px}
-h2 .mut{font-weight:400;font-size:12px;margin-left:auto}
-.seg{display:inline-flex;background:var(--sup2);border-radius:10px;padding:3px;gap:2px}
-.seg button{background:none;border:0;color:var(--mut);padding:7px 14px;border-radius:8px;cursor:pointer}
-.seg button.on{background:var(--ouro);color:#2a1508;font-weight:700}
+.ponto{width:9px;height:9px;border-radius:50%;background:var(--verde);flex:none;display:inline-block}
+.ponto.n1{background:var(--aviso)}.ponto.n2{background:var(--alerta)}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{position:relative;background:var(--sup);border:1px solid var(--linha);border-radius:18px;padding:14px;min-height:118px;display:flex;flex-direction:column;gap:4px;text-align:left;cursor:pointer;color:inherit;width:100%}
+.tile:active{transform:scale(.98)}
+.tile .rot{font-size:12.5px;color:var(--mut)}
+.tile .val{font-size:22px;font-weight:700;line-height:1.15}
+.tile .det{font-size:12.5px;color:var(--mut);margin-top:auto}
+.tile .ico{width:30px;height:30px;border-radius:10px;background:var(--sup2);display:grid;place-items:center;margin-bottom:4px}
+.tile .ico svg{width:18px;height:18px;stroke:var(--ouro);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tile.largo{grid-column:1/-1;min-height:0}
+.tile.on{border-color:#2e6e47}
+.tile.alerta{border-color:#8a6a2a;background:#2f2213}
+.tile.perigo{border-color:#9a3b49;background:#2f161b}
+.tile.acao{min-height:86px;justify-content:center;align-items:center;text-align:center;font-weight:700}
+.tile.acao.prim{background:var(--ouro);border-color:var(--ouro);color:#2a1508}
+.tile.dest{border-color:#8a6a2a}
+.hero{cursor:default}
+.hero .cab{display:flex;align-items:center;gap:8px}
+.hero .nick{font-size:19px;font-weight:700}
+.hero .estado{margin-left:auto;font-size:12px;padding:2px 10px;border-radius:999px;background:#1f4d34;color:#c8f5dc}
+.hero .estado.n1{background:#5a4512;color:#ffe9b0}.hero .estado.n2{background:#6e2230;color:#ffd9dd}
+.hero .big{display:flex;gap:18px;margin-top:8px}
+.hero .big b{font-size:24px;display:block;line-height:1.1}
+.hero .big span{font-size:12px;color:var(--mut)}
+.aviso{background:#3d2b12;border:1px solid #8a6a2a;border-radius:12px;padding:9px 11px;margin-top:8px;font-size:13px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:color-mix(in srgb,var(--sup) 94%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--linha);padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+nav .itens{max-width:720px;margin:0 auto;display:flex;gap:6px}
+nav button{flex:1;min-width:0;background:none;border:0;border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:var(--mut);font-size:11.5px}
+nav button .ln{display:flex;align-items:center;gap:5px;max-width:100%}
+nav button b{font-size:13px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+nav button.on{background:var(--sup2)}
+nav button.on b{color:var(--ouro)}
+.folha{position:fixed;inset:0;z-index:10;display:none;flex-direction:column;background:rgba(0,0,0,.45)}
+.folha.aberta{display:flex}
+.folha .caixa{margin-top:auto;background:var(--fundo);border-top:1px solid var(--linha);border-radius:22px 22px 0 0;max-height:92vh;display:flex;flex-direction:column;width:100%;max-width:720px;margin-left:auto;margin-right:auto;animation:sobe .18s ease-out}
+@keyframes sobe{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.folha .caixa{animation:none}.tile:active{transform:none}}
+.folha .topo{padding:14px 16px 6px;display:flex;align-items:center;gap:8px}
+.folha .topo h2{margin:0;font-size:17px}
+.folha .topo .mut{margin-left:auto;font-size:12.5px}
+.folha .corpo{overflow:auto;padding:6px 16px 12px;display:flex;flex-direction:column;gap:12px}
+.folha .pe{padding:10px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--linha);display:flex;gap:10px}
+.folha .pe button{flex:1;padding:14px;border-radius:14px;font-weight:700;font-size:15px}
+.voltar{background:var(--sup2);border:1px solid var(--linha);cursor:pointer}
+.salvar{background:var(--ouro);border:1px solid var(--ouro);color:#2a1508;cursor:pointer}
+.seg{display:flex;background:var(--sup2);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;background:none;border:0;color:var(--mut);padding:11px 8px;border-radius:10px;cursor:pointer;font-weight:600}
+.seg button.on{background:var(--ouro);color:#2a1508}
+.cartao{background:var(--sup);border:1px solid var(--linha);border-radius:14px;padding:12px}
+.cartao.sug{background:#3a2a12;border-color:#8a6a2a}
+.cartao.boa{background:#1c3628;border-color:#2e6e47}
+.bt{background:var(--sup2);border:1px solid var(--linha);border-radius:12px;padding:11px 14px;cursor:pointer;white-space:nowrap;font-weight:600}
+.bt.prim{background:var(--ouro);border-color:var(--ouro);color:#2a1508}
+.bt.conf{background:var(--aviso);border-color:var(--aviso);color:#2a1508}
+.bt.peq{padding:7px 10px;font-size:13px;border-radius:10px}
+.bt.cheio{width:100%}
 .linha{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.sug{margin-top:10px;border-radius:12px;padding:10px 12px;background:#3a2a12;border:1px solid #8a6a2a;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.sug.boa{background:#1c3628;border-color:#2e6e47}
-.sug.info{background:var(--sup2);border-color:var(--linha)}
-.sug .txt{flex:1;min-width:200px}
-.bt{background:var(--sup2);border:1px solid var(--linha);border-radius:9px;padding:8px 14px;cursor:pointer;white-space:nowrap}
-.bt.prim{background:var(--ouro);border-color:var(--ouro);color:#2a1508;font-weight:700}
-.bt.peq{padding:5px 10px;font-size:12.5px}
-.bt.conf{background:var(--aviso);border-color:var(--aviso);color:#2a1508;font-weight:700}
-.lista{margin-top:10px;display:flex;flex-direction:column;gap:6px}
-.op{display:flex;align-items:center;gap:10px;background:var(--sup2);border-radius:10px;padding:8px 10px}
+.op{display:flex;align-items:center;gap:10px;background:var(--sup);border:1px solid var(--linha);border-radius:12px;padding:10px 12px}
 .op .nome{flex:1;min-width:0}
-.op .nome small{color:var(--mut);display:block}
-.barra{height:5px;border-radius:3px;background:var(--ouro);opacity:.85;margin-top:4px}
-select,input[type=number]{background:var(--fundo);border:1px solid var(--linha);border-radius:8px;padding:7px 9px;font-size:16px}
-select{max-width:100%;min-width:0;flex:1}
-input[type=number]{width:80px}
-details{background:var(--sup);border:1px solid var(--linha);border-radius:14px}
-details>summary{list-style:none;cursor:pointer;padding:12px;display:flex;align-items:center;gap:8px;font-weight:600}
-details>summary::-webkit-details-marker{display:none}
-details>summary::after{content:'';margin-left:8px;width:8px;height:8px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg);transition:transform .15s}
-details[open]>summary::after{transform:rotate(-135deg)}
-details>summary .mut{font-weight:400;font-size:12.5px;margin-left:auto}
-details>.corpo{padding:0 12px 12px;display:flex;flex-direction:column;gap:10px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;font-weight:500;color:var(--mut);font-size:12px;padding:4px 6px;border-bottom:1px solid var(--linha)}
-td{padding:6px;border-bottom:1px solid #ffffff0c;vertical-align:middle}
+.op small{display:block;color:var(--mut)}
+.barra{height:5px;border-radius:3px;background:var(--ouro);opacity:.85;margin-top:5px}
+.campo{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #ffffff0d}
+.campo span{flex:1}
+select,input[type=number],input[type=password]{background:var(--sup);border:1px solid var(--linha);border-radius:10px;padding:10px;font-size:16px}
+input[type=number]{width:96px;text-align:right}
+select{max-width:60%}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--ouro)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-weight:500;color:var(--mut);font-size:12px;padding:6px;border-bottom:1px solid var(--linha)}
+td{padding:8px 6px;border-bottom:1px solid #ffffff0c;vertical-align:middle}
 td.n,th.n{text-align:right}
 .rolar{overflow-x:auto}
-.tag{display:inline-block;background:var(--sup2);border-radius:7px;padding:2px 8px;font-size:12px;color:var(--mut);margin:2px 4px 2px 0}
+.ev{font-size:13px;padding:6px 0;border-bottom:1px solid #ffffff0a}
+.tag{display:inline-block;background:var(--sup2);border-radius:8px;padding:3px 9px;font-size:12px;color:var(--mut);margin:2px 4px 2px 0}
 .tag b{color:var(--txt)}
-.ev{font-size:12.5px;padding:3px 0;border-bottom:1px solid #ffffff08}
-.msg{font-size:12.5px}
-label{cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-input[type=checkbox]{width:18px;height:18px;accent-color:var(--ouro)}
-.vazio{padding:18px;text-align:center;color:var(--mut)}
-@media (min-width:640px){.nums{grid-template-columns:repeat(6,1fr)}}
-@media (prefers-reduced-motion:reduce){details>summary::after{transition:none}}
+.msg{font-size:13px;min-height:1em}
+h3{margin:4px 0 0;font-size:14px}
+.login{max-width:360px;margin:16vh auto 0;padding:0 18px;display:flex;flex-direction:column;gap:12px}
+.login input{width:100%}
+.spark{display:flex;align-items:flex-end;gap:2px;height:36px;margin-top:6px}
+.spark i{flex:1;background:var(--ouro);opacity:.7;border-radius:2px 2px 0 0;min-height:2px}
+@media (min-width:600px){.grade{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
-<header>
-  <div class="topo"><b>PokeBox</b><span class="mut" id="topo">conectando à box…</span></div>
-  <div class="contas" id="contas"></div>
-</header>
-<main id="conteudo"><div class="vazio">Carregando…</div></main>
+<header><b>PokeBox</b><span class="mut" id="topo">conectando…</span></header>
+<main id="tela"></main>
+<nav><div class="itens" id="nav"></div></nav>
+<div class="folha" id="folha"><div class="caixa"><div class="topo"><h2 id="fTit"></h2><span class="mut" id="fSub"></span></div><div class="corpo" id="fCorpo"></div><div class="pe" id="fPe"></div></div></div>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const num = (v) => Number(v || 0).toLocaleString('pt-BR');
-const curto = (v) => { v = Number(v) || 0; const a = Math.abs(v); const f = (x) => x.toFixed(1).replace('.', ','); return a >= 1e9 ? f(v / 1e9) + 'B' : a >= 1e6 ? f(v / 1e6) + 'M' : a >= 1e3 ? f(v / 1e3) + 'k' : String(Math.round(v)); };
+const curto = (v) => { v = Number(v) || 0; const a = Math.abs(v), f = (x) => x.toFixed(1).replace('.', ','); return a >= 1e9 ? f(v / 1e9) + 'B' : a >= 1e6 ? f(v / 1e6) + 'M' : a >= 1e3 ? f(v / 1e3) + 'k' : String(Math.round(v)); };
 const hora = (t) => new Date(t).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-const dur = (ms) => { const m = Math.round(ms / 60000); return m < 60 ? `${m} min` : `${(m / 60).toFixed(1).replace('.', ',')} h`; };
+const dur = (s) => { s = Math.round(s); if (s < 3600) return `${Math.round(s / 60)} min`; if (s < 86400) return `${(s / 3600).toFixed(1).replace('.', ',')} h`; return `${(s / 86400).toFixed(1).replace('.', ',')} dias`; };
 const FRAQ = { 1: 'nenhuma', 2: 'até ×2', 4: 'até ×4', 99: 'qualquer' };
-let dados = null, sel = localStorage.getItem('pb-sel'), editando = false, ultimaOk = 0;
+const ICO = {
+  hunt: '<path d="M12 21s-7-6.1-7-11a7 7 0 1 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  compra: '<path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/>',
+  repo: '<path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/>',
+  merc: '<path d="M3 10h18l-2-6H5l-2 6z"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',
+  ativ: '<path d="M4 6h16M4 12h16M4 18h10"/>',
+  conta: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  pausa: '<path d="M9 5v14M15 5v14"/>',
+  play: '<path d="M7 5l12 7-12 7z"/>',
+  tempo: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  box: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 18v2M17 18v2"/>',
+};
+const ico = (k) => `<span class="ico"><svg viewBox="0 0 24 24">${ICO[k]}</svg></span>`;
+let dados = null, saude = null, vista = localStorage.getItem('pb-vista') || 'conta', sel = localStorage.getItem('pb-sel'), folha = null, travar = false, falhas = 0;
 
-const cor = (c) => (c.status === 'online' ? (c.noCentro || c.motivo ? 1 : 0) : c.pausada ? 1 : 2);
-const textoStatus = (c) => ({ online: c.noCentro ? 'no Centro Pokémon' : 'online', conectando: 'conectando', reconectando: 'reconectando', pausada: 'pausada', desligada: 'desligada' })[c.status] ?? c.status;
-
-async function acao(corpo, msg) {
-  try {
-    const r = await fetch('/api/acao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) });
-    const j = await r.json();
-    if (msg) msg.textContent = j.erro ? `Erro: ${j.erro}` : 'Salvo.';
-    else if (j.erro) alert(j.erro);
-  } catch { if (msg) msg.textContent = 'A box não respondeu.'; }
-  editando = false;
+async function api(url, corpo) {
+  const r = await fetch(url, corpo ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) } : { cache: 'no-store' });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401 && j.precisaSenha) { telaLogin(); throw new Error('senha'); }
+  if (!r.ok) throw new Error(j.erro || 'erro');
+  return j;
+}
+async function acao(corpo, msgSel, fechar) {
+  const m = msgSel && $(msgSel);
+  try { await api('/api/acao', corpo); if (m) m.textContent = 'Feito.'; if (fechar) fecharFolha(); }
+  catch (e) { if (m) m.textContent = `Erro: ${e.message}`; else if (e.message !== 'senha') alert(e.message); }
+  travar = false;
   atualizar();
 }
 
-function blocoHunt(c) {
-  const ia = c.inteligencia || {}, au = ia.auto || { modo: 'manual', meta: 'off', seg: {} }, r = ia.recomendacao;
-  const modoSeg = `<span class="seg">${[['manual', 'Manual'], ['auto', 'Automático']].map(([m, t]) => `<button class="${au.modo === m ? 'on' : ''}" data-modo="${m}">${t}</button>`).join('')}</span>`;
-  const metaSeg = `<span class="seg">${[['xp', 'XP'], ['ouro', 'Ouro'], ['off', 'Sem meta']].map(([m, t]) => `<button class="${au.meta === m ? 'on' : ''}" data-meta="${m}">${t}</button>`).join('')}</span>`;
-  const un = au.meta === 'ouro' ? 'ouro/h' : 'XP/h';
-  let corpo = '';
-  if (c.troca) corpo = `<div class="sug info"><span class="txt">Indo para <b>${esc(c.troca.nome)}</b>, esperando uma pausa no combate (tentativa ${c.troca.tentativas}).</span><button class="bt peq" data-acao="cancelarHunt">Cancelar</button></div>`;
-  else if (au.meta === 'off') corpo = `<div class="sug info"><span class="txt">Escolha <b>XP</b> ou <b>Ouro</b> para receber sugestões${au.modo === 'auto' ? ' e o automático começar a trocar' : ''}.</span></div>`;
-  else if (!r) corpo = `<div class="sug info"><span class="txt">A conta precisa estar online para calcular.</span></div>`;
-  else if (r.erro) corpo = `<div class="sug info"><span class="txt">${esc(r.erro[0].toUpperCase() + r.erro.slice(1))}.</span></div>`;
-  else if (r.sugerir) corpo = `<div class="sug"><span class="txt"><b>${esc(r.melhor.nome)}</b> Nv ${num(r.melhor.nivel)}: ${curto(r.melhor.valor)} ${un}${r.ganho != null ? `, <b>${r.ganho}% a mais</b>` : ''} ${r.melhor.medida ? '(medido)' : '(estimado)'}.</span>${au.modo === 'auto' && !au.pausaManualAte ? '<span class="mut">o automático decide</span>' : `<button class="bt prim" data-ir="${esc(r.melhor.slug)}">Ir</button>`}</div>`;
-  else if (r.melhor) corpo = `<div class="sug boa"><span class="txt">Já está na melhor hunt segura para ${au.meta === 'ouro' ? 'ouro' : 'XP'}.</span></div>`;
-  else corpo = `<div class="sug info"><span class="txt">Nenhuma hunt passa na segurança.${r.barradas?.[0] ? ` ${esc(r.barradas[0].nome)}: ${esc(r.barradas[0].motivos.join(' e '))}.` : ''}</span></div>`;
-  let autoTxt = '';
-  if (au.modo === 'auto') {
-    if (au.pausaManualAte) autoTxt = `<div class="alerta">Automático pausado até ${hora(au.pausaManualAte)} porque você escolheu a hunt. <button class="bt peq" data-acao="retomarAuto">Retomar agora</button></div>`;
-    else if (au.ultima) autoTxt = `<div class="mut" style="margin-top:8px;font-size:12.5px">Última troca às ${hora(au.ultima.t)}: ${esc(au.ultima.de)} → ${esc(au.ultima.para)} (${esc(au.ultima.motivo)}).${!au.ultima.conferido ? ` Confere depois de 20 min e 40 abates (${au.abatesNaHunt} até agora).` : au.ultima.medido ? ` Mediu ${curto(au.ultima.medido)} contra ${curto(au.ultima.antes)} antes.` : ''}${au.proximoEmMs ? ` Próxima troca possível em ${dur(au.proximoEmMs)}.` : ''}</div>`;
-    else autoTxt = '<div class="mut" style="margin-top:8px;font-size:12.5px">Automático ligado. Troca quando achar uma hunt segura com 20% a mais, no máximo a cada 30 min, e volta se piorar.</div>';
-  }
-  const ops = r && !r.erro && r.opcoes?.length ? r.opcoes : [];
-  const maior = Math.max(1, ...ops.map((o) => o.valor));
-  const estimadas = Object.fromEntries(ops.map((o) => [o.slug, o.valor]));
-  const opsHtml = ops.length ? `<div class="lista">${ops.map((o) => `<div class="op"><div class="nome">${esc(o.nome)} <small>Nv ${num(o.nivel)} · ${curto(o.valor)} ${un}${o.medida ? ' medido' : ''}${o.risco != null ? ` · golpe tira ~${o.risco}%` : ''}</small><div class="barra" style="width:${Math.max(4, (o.valor / maior) * 100)}%"></div></div>${o.slug === c.hunt?.slug ? '<span class="ok">atual</span>' : `<button class="bt peq" data-ir="${esc(o.slug)}">Ir</button>`}</div>`).join('')}</div>` : '';
-  const todas = c.hunts.filter((h) => h.nivel <= Math.max(c.nivel, 1)).sort((a, b) => b.nivel - a.nivel);
-  const s = au.seg || {};
-  return `<section class="bloco">
-    <h2>Hunt <span class="mut">${esc(c.hunt?.nome ?? 'sem hunt')}</span></h2>
-    <div class="linha">${modoSeg}${metaSeg}</div>
-    ${corpo}${autoTxt}
-    ${ops.length > 1 ? `<details style="margin-top:10px;background:none;border:0"><summary style="padding:4px 0">Melhores hunts seguras <span class="mut">${ops.length}</span></summary>${opsHtml}</details>` : ''}
-    <div class="linha" style="margin-top:10px"><select data-escolha aria-label="Escolher hunt">${todas.map((h) => `<option value="${esc(h.slug)}" ${c.hunt?.slug === h.slug ? 'selected' : ''}>${esc(h.nome)} · Nv ${h.nivel}${estimadas[h.slug] ? ` · ${curto(estimadas[h.slug])}` : ''}</option>`).join('')}</select><button class="bt" data-acao="irEscolha">Ir para esta</button></div>
-    ${au.modo === 'auto' ? '<div class="mut" style="font-size:12px;margin-top:6px">Escolher uma hunt aqui pausa o automático por 2 h.</div>' : ''}
-    <details data-edit style="margin-top:10px;background:none;border:0"><summary style="padding:4px 0">Segurança <span class="mut">até ${num(s.ttkMax)} s · fraqueza ${FRAQ[s.fraqMax] ?? '—'} · golpe até ${num(s.riscoMax)}%</span></summary>
-      <div data-seg class="linha" style="margin-top:6px">
-        <label>Derrotar cada selvagem em até <input type="number" min="1" max="120" data-s="ttkMax" value="${s.ttkMax}"> s</label>
-        <label>Fraqueza aceita <select data-s="fraqMax">${[1, 2, 4, 99].map((v) => `<option value="${v}" ${Number(s.fraqMax) === v ? 'selected' : ''}>${FRAQ[v]}</option>`).join('')}</select></label>
-        <label>Golpe recebido tira no máximo <input type="number" min="5" max="100" data-s="riscoMax" value="${s.riscoMax}"> % da vida</label>
-        <label>Trocar se render <input type="number" min="0" max="500" data-s="margem" value="${s.margem}"> % a mais</label>
-        <label><input type="checkbox" data-s="comprovada" ${s.comprovada !== false ? 'checked' : ''}> Liberar hunts iguais ou mais leves que a atual</label>
-        <button class="bt prim peq" data-acao="salvarSeg">Salvar segurança</button><span class="msg mut" data-msg="seg"></span>
-      </div></details>
-  </section>`;
+const conta = () => dados?.contas.find((c) => c.nick === sel);
+const cor = (c) => (c.status === 'online' ? (c.noCentro ? 1 : 0) : c.pausada ? 1 : 2);
+const txtStatus = (c) => (c.pausada && c.pausadaAte ? `volta ${hora(c.pausadaAte)}` : ({ online: c.noCentro ? 'no Centro' : 'online', conectando: 'conectando', reconectando: 'reconectando', pausada: 'pausada', desligada: 'desligada' })[c.status] ?? c.status);
+
+function telaLogin() {
+  $('nav').style.display = 'none';
+  $('#topo').textContent = '';
+  $('#tela').innerHTML = `<div class="login"><h2 style="margin:0">Entrar no painel</h2><div class="mut">Digite a senha do PokeBox.</div><input type="password" id="senha" autocomplete="current-password" placeholder="Senha"><button class="bt prim cheio" id="entrar">Entrar</button><div class="msg n1" id="lmsg"></div></div>`;
+  const ir = async () => { try { await api('/api/login', { senha: $('#senha').value }); $('nav').style.display = ''; atualizar(); } catch (e) { $('#lmsg').textContent = e.message === 'senha' ? 'Senha incorreta.' : e.message; } };
+  $('#entrar').onclick = ir;
+  $('#senha').onkeydown = (e) => { if (e.key === 'Enter') ir(); };
+}
+
+function renderNav() {
+  const cs = dados.contas;
+  const corBox = saude ? Math.max(saude.temperaturaNivel || 0, saude.memoria?.nivel || 0) : 0;
+  $('#nav').innerHTML = cs.map((c) => `<button class="${vista === 'conta' && c.nick === sel ? 'on' : ''}" data-nav="${esc(c.nick)}"><span class="ln"><span class="ponto n${cor(c)}"></span><b>${esc(c.nick)}</b></span><span>${curto(c.sessao.xpH)}/h</span></button>`).join('') +
+    `<button class="${vista === 'box' ? 'on' : ''}" data-nav="__box"><span class="ln"><span class="ponto n${corBox}"></span><b>Box</b></span><span>${saude?.temperatura != null ? saude.temperatura + ' °C' : 'saúde'}</span></button>`;
+}
+
+function tileHunt(c) {
+  const ia = c.inteligencia || {}, au = ia.auto || {}, r = ia.recomendacao;
+  const modo = au.modo === 'auto' ? (au.pausaManualAte ? 'Auto pausado' : 'Automático') : 'Manual';
+  const meta = { xp: 'XP', ouro: 'Ouro', off: 'sem meta' }[au.meta] || 'sem meta';
+  let det = c.troca ? `Indo para ${esc(c.troca.nome)}…` : au.meta === 'off' ? 'Toque para escolher a meta' : r?.sugerir ? `Melhor: ${esc(r.melhor.nome)} +${r.ganho ?? '?'}%` : r?.melhor ? 'Na melhor hunt segura' : r?.erro ? 'Calculando…' : '';
+  return `<button class="tile ${r?.sugerir ? 'dest' : ''}" data-abrir="hunt">${ico('hunt')}<span class="rot">Hunt · ${modo} · ${meta}</span><span class="val" style="font-size:17px">${esc(c.hunt?.nome ?? 'sem hunt')}</span><span class="det">${det}</span></button>`;
+}
+
+function renderConta() {
+  const c = conta();
+  if (!c) { $('#tela').innerHTML = '<div class="tile largo hero">Nenhuma conta na box ainda.</div>'; return; }
+  const s = c.sessao, k = cor(c), repo = c.cfg.reposicao, merc = c.cfg.mercado, ehMain = dados.main === c.nick;
+  const ult = c.eventos[0];
+  $('#tela').innerHTML = `<div class="grade">
+    <div class="tile largo hero"><div class="cab"><span class="nick">${esc(c.nick)}</span><span class="mut">Nv ${num(c.nivel)}</span><span class="estado ${k ? 'n' + k : ''}">${esc(txtStatus(c))}</span></div>
+      <div class="mut">${c.pokemon ? `${esc(c.pokemon.nome)} Nv ${num(c.pokemon.nivel)}` : '—'}</div>
+      <div class="big"><div><b>${curto(s.xpH)}</b><span>XP/h</span></div><div><b>${curto(s.ouroH)}</b><span>ouro/h</span></div><div><b>${curto(c.ouro)}</b><span>ouro</span></div></div>
+      <div class="mut" style="font-size:12.5px;margin-top:6px">${num(s.abates)} abates · ${num(s.capturas)} capturas · ${num(s.shinies)} shinies</div>
+      ${c.motivo ? `<div class="aviso">${esc(c.motivo)}</div>` : ''}</div>
+    ${tileHunt(c)}
+    ${c.pausada ? `<button class="tile acao prim" data-acao="retomar">${ico('play')}Retomar</button>` : `<button class="tile acao" data-abrir="pausar">${ico('pausa')}Pausar ou liberar</button>`}
+    <button class="tile" data-abrir="comprar">${ico('compra')}<span class="rot">Comprar</span><span class="val" style="font-size:17px">Loja</span><span class="det">pokébolas e cura</span></button>
+    <button class="tile ${repo.ativo ? 'on' : ''}" data-abrir="repo">${ico('repo')}<span class="rot">Reposição</span><span class="val" style="font-size:17px" class="${repo.ativo ? 'ok' : ''}">${repo.ativo ? 'Ligada' : 'Desligada'}</span><span class="det">${Object.values(repo.regras || {}).filter((r) => r.ativo).length} itens</span></button>
+    ${ehMain ? '' : `<button class="tile ${merc.ativo ? 'on' : ''}" data-abrir="merc">${ico('merc')}<span class="rot">Mercado</span><span class="val" style="font-size:17px">${merc.ativo ? 'Vendendo' : 'Desligado'}</span><span class="det">${Object.values(merc.itens || {}).filter((r) => r.ativo).length} itens</span></button>`}
+    <button class="tile" data-abrir="ativ">${ico('ativ')}<span class="rot">Atividade</span><span class="val" style="font-size:15px;font-weight:600">${ult ? hora(ult.t) : '—'}</span><span class="det">${ult ? esc(ult.txt.slice(0, 48)) : 'nada ainda'}</span></button>
+    <button class="tile" data-abrir="conta">${ico('conta')}<span class="rot">Conta</span><span class="val" style="font-size:17px">${ehMain ? 'Principal' : 'Alternativa'}</span><span class="det">${num(c.quedasHoje)} quedas desde que ligou</span></button>
+  </div>
+  ${s.drops.length ? `<div style="margin-top:10px">${s.drops.slice(0, 8).map((d) => `<span class="tag">${esc(d.nome)} <b>${num(d.q)}</b></span>`).join('')}</div>` : ''}`;
+}
+
+function renderBox() {
+  if (!saude) { $('#tela').innerHTML = '<div class="tile largo hero">Carregando a saúde da box…</div>'; return; }
+  const sd = saude, tn = sd.temperaturaNivel, m = sd.memoria;
+  const cargaPct = Math.round((sd.carga[0] / sd.nucleos) * 100);
+  const hist = sd.historicoTemp || [], hmax = Math.max(1, ...hist.map((x) => x.v));
+  $('#tela').innerHTML = `<div class="grade">
+    ${sd.atualizacao ? `<button class="tile largo dest" data-abrir="atualizar">${ico('repo')}<span class="rot">Atualização disponível</span><span class="val" style="font-size:18px">Versão ${esc(sd.versaoRemota)}</span><span class="det">Você está na ${esc(sd.versao)}. Toque para atualizar.</span></button>` : ''}
+    ${sd.resfriandoAte ? `<div class="tile largo alerta"><span class="rot">Resfriando</span><span class="val" style="font-size:18px">Contas pausadas até ${hora(sd.resfriandoAte)}</span><span class="det">A box esquentou demais; elas voltam sozinhas.</span></div>` : ''}
+    <div class="tile ${tn === 2 ? 'perigo' : tn === 1 ? 'alerta' : ''}" style="cursor:default"><span class="rot">Temperatura</span><span class="val ${tn === 2 ? 'n2' : tn === 1 ? 'n1' : ''}">${sd.temperatura != null ? sd.temperatura + ' °C' : '—'}</span>${hist.length > 3 ? `<div class="spark">${hist.slice(-30).map((x) => `<i style="height:${Math.max(6, (x.v / hmax) * 100)}%"></i>`).join('')}</div>` : ''}<span class="det">limite ${sd.cfg.tempMax} °C</span></div>
+    <div class="tile ${m.nivel === 2 ? 'perigo' : m.nivel === 1 ? 'alerta' : ''}" style="cursor:default"><span class="rot">Memória livre</span><span class="val">${num(m.livreMB)} MB</span><span class="det">de ${num(m.totalMB)} MB · PokeBox ${m.pokeboxMB} MB</span></div>
+    <div class="tile ${cargaPct > 90 ? 'alerta' : ''}" style="cursor:default"><span class="rot">Processador</span><span class="val">${cargaPct}%</span><span class="det">${sd.nucleos} núcleos · média 1 min</span></div>
+    <div class="tile" style="cursor:default"><span class="rot">Ligada há</span><span class="val">${dur(sd.boxLigadaHa)}</span><span class="det">PokeBox há ${dur(sd.pokeboxLigadoHa)}</span></div>
+    <div class="tile" style="cursor:default"><span class="rot">Espaço livre</span><span class="val">${sd.disco ? sd.disco.livreGB.toString().replace('.', ',') + ' GB' : '—'}</span><span class="det">armazenamento interno</span></div>
+    <div class="tile" style="cursor:default"><span class="rot">Quedas</span><span class="val">${num(sd.quedas.reduce((a, q) => a + q.quedas, 0))}</span><span class="det">${sd.quedas.map((q) => `${esc(q.nick)} ${q.quedas}`).join(' · ') || '—'}</span></div>
+    <button class="tile acao" data-acao="pausarTodas">${ico('pausa')}Pausar todas</button>
+    <button class="tile acao" data-acao="retomarTodas">${ico('play')}Retomar todas</button>
+    <button class="tile" data-abrir="seguranca">${ico('tempo')}<span class="rot">Proteção</span><span class="val" style="font-size:17px">${sd.cfg.autoResfriar ? 'Resfriar ligado' : 'Desligado'}</span><span class="det">pausa ${sd.cfg.pausaMin} min acima de ${sd.cfg.tempMax} °C</span></button>
+    <button class="tile" data-abrir="sistema">${ico('box')}<span class="rot">Sistema</span><span class="val" style="font-size:17px">v${esc(sd.versao)}</span><span class="det">senha, reiniciar, desligar</span></button>
+  </div>`;
 }
 
 function render() {
   if (!dados) return;
   const cs = dados.contas;
+  if (cs.length && !cs.some((c) => c.nick === sel)) sel = cs[0].nick;
   const xp = cs.reduce((a, c) => a + c.sessao.xpH, 0), ou = cs.reduce((a, c) => a + c.sessao.ouroH, 0);
-  $('#topo').textContent = `${curto(xp)} XP/h · ${curto(ou)} ouro/h · v${dados.versao}`;
-  if (!cs.length) { $('#contas').innerHTML = ''; $('#conteudo').innerHTML = '<div class="bloco vazio">Nenhuma conta na box ainda.</div>'; return; }
-  if (!cs.some((c) => c.nick === sel)) sel = cs[0].nick;
-  $('#contas').innerHTML = cs.map((c) => `<button class="chip ${c.nick === sel ? 'on' : ''}" data-sel="${esc(c.nick)}"><span class="ponto n${cor(c)}"></span><b>${esc(c.nick)}</b><span>${curto(c.sessao.xpH)}</span></button>`).join('');
-  const c = cs.find((x) => x.nick === sel), s = c.sessao, k = cor(c);
-  const abertos = new Set($$('details[open]').map((d) => d.dataset.id));
-  const repo = c.cfg.reposicao, merc = c.cfg.mercado, regras = repo.regras || {};
-  const qB = (id) => c.bolas.find((b) => String(b.id) === String(id))?.q ?? 0, qI = (id) => c.itens.find((b) => String(b.id) === String(id))?.q ?? 0;
-  const compraLin = (kind, i, q) => `<tr><td>${esc(i.nome)}</td><td class="n">${num(q)}</td><td class="n mut">${num(i.preco)}</td><td class="n" style="white-space:nowrap">${[100, 500, 1000].map((x) => `<button class="bt peq" data-comprar="${kind}|${esc(i.id)}|${x}">+${x >= 1000 ? '1k' : x}</button>`).join(' ')}</td></tr>`;
-  const regraLin = (kind, i) => { const key = `${kind}:${i.id}`, r = regras[key] || { ativo: false, min: 100, lote: 500 }; return `<tr data-regra="${key}"><td><label><input type="checkbox" data-c="ativo" ${r.ativo ? 'checked' : ''}> ${esc(i.nome)}</label></td><td><input type="number" min="0" data-c="min" value="${r.min}"></td><td><input type="number" min="1" max="9999" data-c="lote" value="${r.lote}"></td></tr>`; };
-  const precos = c.precosMercado || {}, mIds = [...new Set([...Object.keys(precos), ...Object.keys(merc.itens || {})])];
-  const mercLin = (id) => { const r = merc.itens[id] || { ativo: false, acumular: 20, guardar: 0, modo: 'media' }, it = c.itens.find((x) => String(x.id) === String(id)), p = precos[id] || {}; return `<tr data-merc="${esc(id)}"><td><label><input type="checkbox" data-c="ativo" ${r.ativo ? 'checked' : ''}> ${esc(it?.nome ?? 'Item ' + id)}</label></td><td class="n">${num(it?.q ?? 0)}</td><td class="n mut">${p.media ? curto(p.media) : '—'}</td><td><input type="number" min="5" data-c="acumular" value="${r.acumular}"></td><td><input type="number" min="0" data-c="guardar" value="${r.guardar}"></td><td><select data-c="modo"><option value="media" ${r.modo === 'media' ? 'selected' : ''}>média</option><option value="menor" ${r.modo === 'menor' ? 'selected' : ''}>menor − 1</option></select></td></tr>`; };
-  const ehMain = dados.main === c.nick;
-  $('#conteudo').innerHTML = `
-  <section class="bloco" data-nick="${esc(c.nick)}">
-    <div class="cab"><span class="nick">${esc(c.nick)}</span><span class="mut">Treinador Nv ${num(c.nivel)}</span><span class="estado ${k ? 'n' + k : ''}">${esc(textoStatus(c))}</span></div>
-    <div class="sub">${c.pokemon ? `${esc(c.pokemon.nome)} Nv ${num(c.pokemon.nivel)}` : '—'} · ${esc(c.hunt?.nome ?? 'sem hunt')}</div>
-    ${c.motivo ? `<div class="alerta">${esc(c.motivo)}</div>` : ''}
-    <div class="nums"><div><b>${curto(s.xpH)}</b><span>XP/h</span></div><div><b>${curto(s.ouroH)}</b><span>ouro/h</span></div><div><b>${curto(c.ouro)}</b><span>ouro</span></div><div><b>${num(s.abates)}</b><span>abates</span></div><div><b>${num(s.capturas)}</b><span>capturas</span></div><div><b>${num(s.shinies)}</b><span>shinies</span></div></div>
-    ${s.drops.length ? `<div style="margin-top:8px">${s.drops.slice(0, 6).map((d) => `<span class="tag">${esc(d.nome)} <b>${num(d.q)}</b></span>`).join('')}</div>` : ''}
-    <div class="linha" style="margin-top:10px">${c.pausada ? '<button class="bt prim" data-acao="retomar">Retomar conta</button>' : '<button class="bt" data-acao="pausar">Pausar conta</button>'}</div>
-  </section>
-  <div data-nick="${esc(c.nick)}">${blocoHunt(c)}</div>
-  <details data-id="comprar" data-nick="${esc(c.nick)}"><summary>Comprar <span class="mut">pokébolas e cura</span></summary><div class="corpo"><div class="rolar"><table><tr><th>Item</th><th class="n">Tem</th><th class="n">Preço</th><th></th></tr>${c.catalogoBolas.map((b) => compraLin('ball', b, qB(b.id))).join('')}${c.catalogoCura.map((i) => compraLin('item', i, qI(i.id))).join('')}</table></div><div class="msg mut" data-msg="compra">Toque duas vezes para confirmar a compra.</div></div></details>
-  <details data-id="repo" data-edit data-nick="${esc(c.nick)}"><summary>Reposição automática <span class="mut ${repo.ativo ? 'ok' : ''}">${repo.ativo ? 'ligada' : 'desligada'}</span></summary><div class="corpo" data-repo>
-    <div class="linha"><label><input type="checkbox" data-c="repoAtivo" ${repo.ativo ? 'checked' : ''}> Ligada</label><label>Guardar sempre <input type="number" min="0" step="1000" data-c="reservaOuro" value="${repo.reservaOuro || 0}"> de ouro</label></div>
-    <div class="rolar"><table><tr><th>Item</th><th>Comprar abaixo de</th><th>Quantidade</th></tr>${c.catalogoBolas.map((b) => regraLin('ball', b)).join('')}${c.catalogoCura.map((i) => regraLin('item', i)).join('')}</table></div>
-    <div class="linha"><button class="bt prim" data-acao="salvarRepo">Salvar reposição</button><span class="msg mut" data-msg="repo"></span></div></div></details>
-  ${ehMain ? '' : `<details data-id="merc" data-edit data-nick="${esc(c.nick)}"><summary>Venda no mercado <span class="mut ${merc.ativo ? 'ok' : ''}">${merc.ativo ? 'ligada' : 'desligada'}</span></summary><div class="corpo" data-mercfg>
-    <div class="linha"><label><input type="checkbox" data-c="mercAtivo" ${merc.ativo ? 'checked' : ''}> Vender automaticamente</label><label>Máx. <input type="number" min="1" max="60" data-c="maxHora" value="${merc.maxHora || 6}"> anúncios/h</label><button class="bt peq" data-acao="precos">Atualizar preços</button></div>
-    ${mIds.length ? `<div class="rolar"><table><tr><th>Item</th><th class="n">Tem</th><th class="n">Média</th><th>Juntar</th><th>Guardar</th><th>Preço</th></tr>${mIds.map(mercLin).join('')}</table></div>` : '<div class="mut">Toque em "Atualizar preços" para listar os itens que têm mercado.</div>'}
-    <div class="linha"><button class="bt prim" data-acao="salvarMerc">Salvar venda</button><span class="msg mut" data-msg="merc"></span></div></div></details>`}
-  <details data-id="ativ"><summary>Atividade <span class="mut">${c.eventos[0] ? hora(c.eventos[0].t) : ''}</span></summary><div class="corpo">${c.eventos.map((e) => `<div class="ev ${e.tipo === 'erro' ? 'n1' : e.tipo === 'ok' ? 'ok' : 'mut'}">${hora(e.t)} · ${esc(e.txt)}</div>`).join('') || '<div class="mut">Nada ainda.</div>'}</div></details>
-  <details data-id="mais" data-nick="${esc(c.nick)}"><summary>Conta</summary><div class="corpo"><div class="linha">${ehMain ? '<span class="mut">Conta principal: não vende no mercado.</span>' : '<button class="bt peq" data-acao="main">Marcar como principal</button>'}<button class="bt peq" data-acao="remover">Remover da box</button></div><div class="mut" style="font-size:12px">Box usando ${dados.memoriaMB} MB de memória.</div></div></details>`;
-  for (const d of $$('details[data-id]')) if (abertos.has(d.dataset.id)) d.open = true;
+  $('#topo').textContent = `${curto(xp)} XP/h · ${curto(ou)} ouro/h${dados.atualizacao ? ' · atualização disponível' : ''}`;
+  renderNav();
+  if (vista === 'box') renderBox(); else renderConta();
+  if (folha && !travar) abrir(folha, true);
+}
+
+function pe(botoes) { $('#fPe').innerHTML = botoes; }
+function fecharFolha() { folha = null; travar = false; $('#folha').classList.remove('aberta'); }
+function abrir(tipo, refresh) {
+  const c = conta();
+  folha = tipo;
+  const T = (t, sub = '') => { $('#fTit').textContent = t; $('#fSub').textContent = sub; };
+  const corpo = $('#fCorpo');
+  const voltar = '<button class="voltar" data-fechar>Voltar</button>';
+  if (refresh && travar) return;
+  const rolagem = refresh ? corpo.scrollTop : 0;
+  if (tipo === 'hunt' && c) {
+    const ia = c.inteligencia || {}, au = ia.auto || { seg: {} }, r = ia.recomendacao, un = au.meta === 'ouro' ? 'ouro/h' : 'XP/h';
+    T('Hunt', c.nick);
+    let sug = '';
+    if (c.troca) sug = `<div class="cartao">Indo para <b>${esc(c.troca.nome)}</b>, esperando pausa no combate (tentativa ${c.troca.tentativas}).<div style="margin-top:8px"><button class="bt peq" data-acao="cancelarHunt">Cancelar troca</button></div></div>`;
+    else if (au.meta === 'off') sug = '<div class="cartao">Escolha XP ou Ouro para receber sugestões.</div>';
+    else if (r?.erro) sug = `<div class="cartao">${esc(r.erro)}.</div>`;
+    else if (r?.sugerir) sug = `<div class="cartao sug"><b>${esc(r.melhor.nome)}</b> Nv ${num(r.melhor.nivel)} rende ${curto(r.melhor.valor)} ${un}${r.ganho != null ? `, ${r.ganho}% a mais` : ''} ${r.melhor.medida ? '(medido)' : '(estimado)'}.${au.modo === 'auto' && !au.pausaManualAte ? '<div class="mut" style="margin-top:6px">O automático vai decidir a troca.</div>' : `<div style="margin-top:10px"><button class="bt prim cheio" data-ir="${esc(r.melhor.slug)}">Ir para ${esc(r.melhor.nome)}</button></div>`}</div>`;
+    else if (r?.melhor) sug = `<div class="cartao boa">Já está na melhor hunt segura para ${au.meta === 'ouro' ? 'ouro' : 'XP'}.</div>`;
+    let autoTxt = '';
+    if (au.modo === 'auto') {
+      if (au.pausaManualAte) autoTxt = `<div class="cartao">Automático pausado até ${hora(au.pausaManualAte)} porque você escolheu a hunt.<div style="margin-top:8px"><button class="bt peq" data-acao="retomarAuto">Retomar automático agora</button></div></div>`;
+      else if (au.ultima) autoTxt = `<div class="mut" style="font-size:13px">Última troca ${hora(au.ultima.t)}: ${esc(au.ultima.de)} → ${esc(au.ultima.para)} (${esc(au.ultima.motivo)}).${!au.ultima.conferido ? ` Confere após 20 min e 40 abates (${au.abatesNaHunt}).` : ''}</div>`;
+      else autoTxt = '<div class="mut" style="font-size:13px">Troca sozinha quando achar uma hunt segura com 20% a mais, no máximo a cada 30 min, e volta se piorar.</div>';
+    }
+    const ops = r && !r.erro ? r.opcoes || [] : [], mx = Math.max(1, ...ops.map((o) => o.valor));
+    const todas = c.hunts.filter((h) => h.nivel <= Math.max(c.nivel, 1)).sort((a, b) => b.nivel - a.nivel), est = Object.fromEntries(ops.map((o) => [o.slug, o.valor]));
+    const sg = au.seg || {};
+    corpo.innerHTML = `
+      <div class="seg">${[['manual', 'Manual'], ['auto', 'Automático']].map(([m, t]) => `<button class="${au.modo === m ? 'on' : ''}" data-modo="${m}">${t}</button>`).join('')}</div>
+      <div class="seg">${[['xp', 'XP'], ['ouro', 'Ouro'], ['off', 'Sem meta']].map(([m, t]) => `<button class="${au.meta === m ? 'on' : ''}" data-meta="${m}">${t}</button>`).join('')}</div>
+      ${sug}${autoTxt}
+      ${ops.length ? `<h3>Melhores hunts seguras</h3>${ops.map((o) => `<div class="op"><div class="nome">${esc(o.nome)}<small>Nv ${num(o.nivel)} · ${curto(o.valor)} ${un}${o.medida ? ' medido' : ''}${o.risco != null ? ` · golpe ~${o.risco}%` : ''}</small><div class="barra" style="width:${Math.max(4, (o.valor / mx) * 100)}%"></div></div>${o.slug === c.hunt?.slug ? '<span class="ok">atual</span>' : `<button class="bt peq" data-ir="${esc(o.slug)}">Ir</button>`}</div>`).join('')}` : ''}
+      <h3>Escolher qualquer hunt</h3>
+      <div class="linha"><select data-escolha style="flex:1;max-width:none">${todas.map((h) => `<option value="${esc(h.slug)}" ${c.hunt?.slug === h.slug ? 'selected' : ''}>${esc(h.nome)} · Nv ${h.nivel}${est[h.slug] ? ` · ${curto(est[h.slug])}` : ''}</option>`).join('')}</select><button class="bt" data-acao="irEscolha">Ir</button></div>
+      ${au.modo === 'auto' ? '<div class="mut" style="font-size:12.5px">Escolher manualmente pausa o automático por 2 h.</div>' : ''}
+      <h3>Segurança</h3>
+      <div data-seg>
+        <label class="campo"><span>Derrotar cada selvagem em até (s)</span><input type="number" min="1" max="120" data-s="ttkMax" value="${sg.ttkMax}"></label>
+        <label class="campo"><span>Fraqueza aceita</span><select data-s="fraqMax">${[1, 2, 4, 99].map((v) => `<option value="${v}" ${Number(sg.fraqMax) === v ? 'selected' : ''}>${FRAQ[v]}</option>`).join('')}</select></label>
+        <label class="campo"><span>Golpe recebido tira no máximo (% da vida)</span><input type="number" min="5" max="100" data-s="riscoMax" value="${sg.riscoMax}"></label>
+        <label class="campo"><span>Trocar se render (% a mais)</span><input type="number" min="0" max="500" data-s="margem" value="${sg.margem}"></label>
+        <label class="campo"><span>Liberar hunts iguais ou mais leves que a atual</span><input type="checkbox" data-s="comprovada" ${sg.comprovada !== false ? 'checked' : ''}></label>
+        <div class="msg mut" id="msgSeg"></div>
+      </div>`;
+    pe(`${voltar}<button class="salvar" data-acao="salvarSeg">Salvar segurança</button>`);
+  } else if (tipo === 'pausar' && c) {
+    T('Pausar ou liberar', c.nick);
+    corpo.innerHTML = `<div class="cartao">Para jogar esta conta no navegador ou no celular, <b>libere</b> antes. A box solta a conta e volta sozinha no horário escolhido. Depois de jogar, feche a aba sem clicar em "Sair".</div>
+      <div class="grade">${[1, 2, 4, 8].map((h) => `<button class="tile acao" data-liberar="${h}">${ico('tempo')}Liberar ${h} h</button>`).join('')}</div>
+      <button class="bt cheio" data-acao="pausar">Pausar sem horário para voltar</button>`;
+    pe(voltar);
+  } else if (tipo === 'comprar' && c) {
+    T('Comprar', `${curto(c.ouro)} de ouro`);
+    const qB = (id) => c.bolas.find((b) => String(b.id) === String(id))?.q ?? 0, qI = (id) => c.itens.find((b) => String(b.id) === String(id))?.q ?? 0;
+    const lin = (kind, i, q) => `<div class="op"><div class="nome">${esc(i.nome)}<small>tem ${num(q)} · ${num(i.preco)} cada</small></div>${[100, 500].map((x) => `<button class="bt peq" data-comprar="${kind}|${esc(i.id)}|${x}">+${x}</button>`).join('')}</div>`;
+    corpo.innerHTML = `<div class="mut" style="font-size:12.5px">Toque duas vezes no botão para confirmar.</div>${c.catalogoBolas.map((b) => lin('ball', b, qB(b.id))).join('')}${c.catalogoCura.map((i) => lin('item', i, qI(i.id))).join('')}<div class="msg mut" id="msgCompra"></div>`;
+    pe(voltar);
+  } else if (tipo === 'repo' && c) {
+    const repo = c.cfg.reposicao, regras = repo.regras || {};
+    T('Reposição automática', c.nick);
+    const lin = (kind, i) => { const k = `${kind}:${i.id}`, r = regras[k] || { ativo: false, min: 100, lote: 500 }; return `<div class="cartao" data-regra="${k}"><label class="campo" style="border:0;padding-top:0"><span><b>${esc(i.nome)}</b></span><input type="checkbox" data-c="ativo" ${r.ativo ? 'checked' : ''}></label><label class="campo"><span>Comprar quando tiver menos de</span><input type="number" min="0" data-c="min" value="${r.min}"></label><label class="campo" style="border:0;padding-bottom:0"><span>Quantidade</span><input type="number" min="1" max="9999" data-c="lote" value="${r.lote}"></label></div>`; };
+    corpo.innerHTML = `<div data-repo><label class="campo"><span><b>Reposição ligada</b></span><input type="checkbox" data-c="repoAtivo" ${repo.ativo ? 'checked' : ''}></label><label class="campo"><span>Guardar sempre (ouro)</span><input type="number" min="0" step="1000" data-c="reservaOuro" value="${repo.reservaOuro || 0}"></label></div>${c.catalogoBolas.map((b) => lin('ball', b)).join('')}${c.catalogoCura.map((i) => lin('item', i)).join('')}<div class="msg mut" id="msgRepo"></div>`;
+    pe(`${voltar}<button class="salvar" data-acao="salvarRepo">Salvar</button>`);
+  } else if (tipo === 'merc' && c) {
+    const merc = c.cfg.mercado, precos = c.precosMercado || {}, ids = [...new Set([...Object.keys(precos), ...Object.keys(merc.itens || {})])];
+    T('Venda no mercado', c.nick);
+    const lin = (id) => { const r = merc.itens[id] || { ativo: false, acumular: 20, guardar: 0, modo: 'media' }, it = c.itens.find((x) => String(x.id) === String(id)), p = precos[id] || {}; return `<div class="cartao" data-merc="${esc(id)}"><label class="campo" style="border:0;padding-top:0"><span><b>${esc(it?.nome ?? 'Item ' + id)}</b> <span class="mut">tem ${num(it?.q ?? 0)} · média ${p.media ? curto(p.media) : '—'}</span></span><input type="checkbox" data-c="ativo" ${r.ativo ? 'checked' : ''}></label><label class="campo"><span>Juntar antes de anunciar</span><input type="number" min="5" data-c="acumular" value="${r.acumular}"></label><label class="campo"><span>Guardar sempre</span><input type="number" min="0" data-c="guardar" value="${r.guardar}"></label><label class="campo" style="border:0;padding-bottom:0"><span>Preço</span><select data-c="modo"><option value="media" ${r.modo === 'media' ? 'selected' : ''}>média vendida</option><option value="menor" ${r.modo === 'menor' ? 'selected' : ''}>menor anúncio − 1</option></select></label></div>`; };
+    corpo.innerHTML = `<div data-mercfg><label class="campo"><span><b>Vender automaticamente</b></span><input type="checkbox" data-c="mercAtivo" ${merc.ativo ? 'checked' : ''}></label><label class="campo"><span>Máximo de anúncios por hora</span><input type="number" min="1" max="60" data-c="maxHora" value="${merc.maxHora || 6}"></label></div><button class="bt cheio" data-acao="precos">Atualizar preços</button>${ids.length ? ids.map(lin).join('') : '<div class="mut">Toque em "Atualizar preços" para listar os itens que têm mercado.</div>'}<div class="msg mut" id="msgMerc"></div>`;
+    pe(`${voltar}<button class="salvar" data-acao="salvarMerc">Salvar</button>`);
+  } else if (tipo === 'ativ' && c) {
+    T('Atividade', c.nick);
+    corpo.innerHTML = c.eventos.map((e) => `<div class="ev ${e.tipo === 'erro' ? 'n1' : e.tipo === 'ok' ? 'ok' : ''}"><span class="mut">${hora(e.t)}</span> ${esc(e.txt)}</div>`).join('') || '<div class="mut">Nada ainda.</div>';
+    pe(voltar);
+  } else if (tipo === 'conta' && c) {
+    const ehMain = dados.main === c.nick;
+    T('Conta', c.nick);
+    corpo.innerHTML = `<div class="cartao">${ehMain ? 'Esta é a conta principal: ela nunca vende no mercado.' : 'Conta alternativa: pode vender no mercado.'}</div>${ehMain ? '' : '<button class="bt cheio" data-acao="main">Marcar como principal</button>'}<button class="bt cheio" data-acao="remover">Remover da box</button>`;
+    pe(voltar);
+  } else if (tipo === 'seguranca' && saude) {
+    const sc = saude.cfg;
+    T('Proteção da box');
+    corpo.innerHTML = `<div class="cartao">Se a temperatura passar do limite por cerca de 1,5 min seguidos, a box pausa todas as contas pelo tempo escolhido para esfriar e depois retoma sozinha.</div>
+      <div data-saude><label class="campo"><span><b>Resfriar automaticamente</b></span><input type="checkbox" data-c="autoResfriar" ${sc.autoResfriar ? 'checked' : ''}></label>
+      <label class="campo"><span>Temperatura limite (°C)</span><input type="number" min="60" max="95" data-c="tempMax" value="${sc.tempMax}"></label>
+      <label class="campo"><span>Pausa para esfriar (min)</span><input type="number" min="5" max="120" data-c="pausaMin" value="${sc.pausaMin}"></label></div>
+      <div class="cartao"><b>Dicas</b><div class="mut" style="font-size:13px;margin-top:4px">Deixe a box em lugar ventilado, fora de rack fechado e longe do calor da TV. Acima de 85 °C por muito tempo encurta a vida do aparelho. Se ela travar com frequência, use "Reiniciar PokeBox" ou tire da tomada por 1 minuto.</div></div><div class="msg mut" id="msgSaude"></div>`;
+    pe(`${voltar}<button class="salvar" data-acao="salvarSaude">Salvar</button>`);
+  } else if (tipo === 'sistema' && saude) {
+    T('Sistema', `v${saude.versao}`);
+    corpo.innerHTML = `<h3>Senha do painel</h3><div class="mut" style="font-size:13px">${dados.temSenha ? 'O painel tem senha.' : 'O painel está sem senha: qualquer pessoa no seu Wi-Fi consegue abrir.'}</div>
+      <div class="linha"><input type="password" id="novaSenha" placeholder="${dados.temSenha ? 'Nova senha' : 'Criar senha'}" autocomplete="new-password" style="flex:1"><button class="bt prim" data-acao="senha">${dados.temSenha ? 'Trocar' : 'Criar'}</button></div><div class="msg mut" id="msgSenha"></div>
+      <h3>Atualização</h3><div class="mut" style="font-size:13px">${saude.atualizacao ? `Versão ${esc(saude.versaoRemota)} disponível.` : `Você está na versão mais nova (${esc(saude.versao)}).`}</div>
+      <button class="bt cheio ${saude.atualizacao ? 'prim' : ''}" data-acao="atualizar">Atualizar agora</button>
+      <h3>Controle</h3>
+      <button class="bt cheio" data-acao="reiniciar">Reiniciar PokeBox</button>
+      <button class="bt cheio" data-acao="desligar">Desligar PokeBox</button>
+      <div class="mut" style="font-size:12.5px">Desligar para o programa e o painel até você reiniciar a box. Use para deixar esfriar ou antes de mexer nela.</div><div class="msg mut" id="msgSis"></div>`;
+    pe(voltar);
+  } else if (tipo === 'atualizar') { folha = null; abrir('sistema'); return; }
+  $('#folha').classList.add('aberta');
+  corpo.scrollTop = rolagem;
 }
 
 async function atualizar() {
-  if (editando) return;
+  if (travar) return;
   try {
-    dados = await (await fetch('/api/estado', { cache: 'no-store' })).json();
-    ultimaOk = Date.now();
+    [dados, saude] = await Promise.all([api('/api/estado'), api('/api/saude').catch(() => saude)]);
+    falhas = 0;
+    $('nav').style.display = '';
     render();
-  } catch { $('#topo').textContent = 'sem conexão com a box'; }
+  } catch (e) {
+    if (e.message === 'senha') return;
+    falhas += 1;
+    if (falhas > 2) $('#topo').textContent = 'sem resposta da box';
+  }
 }
 
-document.addEventListener('focusin', (e) => { if (e.target.closest('[data-edit]')) editando = true; });
-document.addEventListener('focusout', () => setTimeout(() => { if (!document.activeElement?.closest?.('[data-edit]')) editando = false; }, 400));
+document.addEventListener('focusin', (e) => { if (e.target.closest('#folha')) travar = true; });
+document.addEventListener('change', (e) => { if (e.target.closest('#folha')) travar = true; });
+$('#folha').addEventListener('click', (e) => { if (e.target.id === 'folha') fecharFolha(); });
 document.addEventListener('click', (e) => {
-  const chip = e.target.closest('[data-sel]');
-  if (chip) { sel = chip.dataset.sel; localStorage.setItem('pb-sel', sel); editando = false; render(); return; }
-  const box = e.target.closest('[data-nick]');
-  const nick = box?.dataset.nick || sel;
-  const m = e.target.closest('[data-modo]'); if (m) return acao({ tipo: 'huntCfg', nick, modo: m.dataset.modo });
-  const mt = e.target.closest('[data-meta]'); if (mt) return acao({ tipo: 'huntCfg', nick, meta: mt.dataset.meta });
-  const ir = e.target.closest('[data-ir]'); if (ir) return acao({ tipo: 'hunt', nick, slug: ir.dataset.ir });
-  const comp = e.target.closest('[data-comprar]');
-  if (comp) {
-    const [kind, id, qty] = comp.dataset.comprar.split('|');
-    if (!comp.classList.contains('conf')) { comp.classList.add('conf'); comp.textContent = 'Confirmar'; editando = true; setTimeout(() => { editando = false; render(); }, 4000); return; }
-    return acao({ tipo: 'comprar', nick, kind, id, qty: Number(qty) }, $('[data-msg=compra]'));
-  }
-  const b = e.target.closest('[data-acao]'); if (!b) return;
+  const t = (s) => e.target.closest(s);
+  const c = conta(), nick = c?.nick;
+  if (t('[data-fechar]')) return fecharFolha();
+  const n = t('[data-nav]');
+  if (n) { if (n.dataset.nav === '__box') vista = 'box'; else { vista = 'conta'; sel = n.dataset.nav; localStorage.setItem('pb-sel', sel); } localStorage.setItem('pb-vista', vista); fecharFolha(); render(); return; }
+  const ab = t('[data-abrir]'); if (ab) { travar = false; return abrir(ab.dataset.abrir); }
+  const md = t('[data-modo]'); if (md) return acao({ tipo: 'huntCfg', nick, modo: md.dataset.modo });
+  const mt = t('[data-meta]'); if (mt) return acao({ tipo: 'huntCfg', nick, meta: mt.dataset.meta });
+  const ir = t('[data-ir]'); if (ir) return acao({ tipo: 'hunt', nick, slug: ir.dataset.ir }, null, true);
+  const lb = t('[data-liberar]'); if (lb) return acao({ tipo: 'liberar', nick, horas: Number(lb.dataset.liberar) }, null, true);
+  const cp = t('[data-comprar]');
+  if (cp) { const [kind, id, qty] = cp.dataset.comprar.split('|'); if (!cp.classList.contains('conf')) { travar = true; cp.classList.add('conf'); cp.textContent = 'Confirmar'; setTimeout(() => { if (cp.isConnected) { cp.classList.remove('conf'); cp.textContent = `+${qty}`; } }, 4000); return; } return acao({ tipo: 'comprar', nick, kind, id, qty: Number(qty) }, '#msgCompra'); }
+  const b = t('[data-acao]'); if (!b) return;
   const a = b.dataset.acao;
-  if (['pausar', 'retomar', 'cancelarHunt', 'main'].includes(a)) acao({ tipo: a, nick });
+  if (['pausar', 'retomar', 'cancelarHunt', 'main'].includes(a)) acao({ tipo: a, nick }, null, a !== 'cancelarHunt');
+  else if (a === 'pausarTodas' || a === 'retomarTodas') acao({ tipo: a });
   else if (a === 'retomarAuto') acao({ tipo: 'huntCfg', nick, retomarAuto: true });
-  else if (a === 'irEscolha') acao({ tipo: 'hunt', nick, slug: $('[data-escolha]').value });
-  else if (a === 'precos') { acao({ tipo: 'precosMercado', nick }, $('[data-msg=merc]')); setTimeout(atualizar, 3000); }
-  else if (a === 'remover') { if (confirm(`Remover ${nick} da box? O acesso dela será apagado da box.`)) acao({ tipo: 'remover', nick }); }
-  else if (a === 'salvarSeg') { const g = $('[data-seg]'); acao({ tipo: 'huntCfg', nick, seg: { ttkMax: Number($('[data-s=ttkMax]', g).value), fraqMax: Number($('[data-s=fraqMax]', g).value), riscoMax: Number($('[data-s=riscoMax]', g).value), margem: Number($('[data-s=margem]', g).value), comprovada: $('[data-s=comprovada]', g).checked } }, $('[data-msg=seg]')); }
-  else if (a === 'salvarRepo') { const g = $('[data-repo]'), regras = {}; for (const tr of $$('tr[data-regra]', g)) regras[tr.dataset.regra] = { ativo: $('[data-c=ativo]', tr).checked, min: Number($('[data-c=min]', tr).value) || 0, lote: Number($('[data-c=lote]', tr).value) || 1 }; acao({ tipo: 'salvarCfg', nick, reposicao: { ativo: $('[data-c=repoAtivo]', g).checked, reservaOuro: Number($('[data-c=reservaOuro]', g).value) || 0, regras } }, $('[data-msg=repo]')); }
-  else if (a === 'salvarMerc') { const g = $('[data-mercfg]'), itens = {}; for (const tr of $$('tr[data-merc]', g)) itens[tr.dataset.merc] = { ativo: $('[data-c=ativo]', tr).checked, acumular: Math.max(5, Number($('[data-c=acumular]', tr).value) || 20), guardar: Number($('[data-c=guardar]', tr).value) || 0, modo: $('[data-c=modo]', tr).value, minPreco: 0 }; acao({ tipo: 'salvarCfg', nick, mercado: { ativo: $('[data-c=mercAtivo]', g).checked, maxHora: Number($('[data-c=maxHora]', g).value) || 6, itens } }, $('[data-msg=merc]')); }
+  else if (a === 'irEscolha') acao({ tipo: 'hunt', nick, slug: $('[data-escolha]').value }, null, true);
+  else if (a === 'precos') { acao({ tipo: 'precosMercado', nick }, '#msgMerc'); setTimeout(() => { travar = false; atualizar(); }, 3000); }
+  else if (a === 'remover') { if (confirm(`Remover ${nick} da box? O acesso dela será apagado da box.`)) acao({ tipo: 'remover', nick }, null, true); }
+  else if (a === 'salvarSeg') { const g = $('[data-seg]'); acao({ tipo: 'huntCfg', nick, seg: { ttkMax: Number($('[data-s=ttkMax]', g).value), fraqMax: Number($('[data-s=fraqMax]', g).value), riscoMax: Number($('[data-s=riscoMax]', g).value), margem: Number($('[data-s=margem]', g).value), comprovada: $('[data-s=comprovada]', g).checked } }, '#msgSeg'); }
+  else if (a === 'salvarRepo') { const regras = {}; for (const x of $$('[data-regra]')) regras[x.dataset.regra] = { ativo: $('[data-c=ativo]', x).checked, min: Number($('[data-c=min]', x).value) || 0, lote: Number($('[data-c=lote]', x).value) || 1 }; acao({ tipo: 'salvarCfg', nick, reposicao: { ativo: $('[data-c=repoAtivo]').checked, reservaOuro: Number($('[data-c=reservaOuro]').value) || 0, regras } }, '#msgRepo'); }
+  else if (a === 'salvarMerc') { const itens = {}; for (const x of $$('[data-merc]')) itens[x.dataset.merc] = { ativo: $('[data-c=ativo]', x).checked, acumular: Math.max(5, Number($('[data-c=acumular]', x).value) || 20), guardar: Number($('[data-c=guardar]', x).value) || 0, modo: $('[data-c=modo]', x).value, minPreco: 0 }; acao({ tipo: 'salvarCfg', nick, mercado: { ativo: $('[data-c=mercAtivo]').checked, maxHora: Number($('[data-c=maxHora]').value) || 6, itens } }, '#msgMerc'); }
+  else if (a === 'salvarSaude') { const g = $('[data-saude]'); acao({ tipo: 'saudeCfg', autoResfriar: $('[data-c=autoResfriar]', g).checked, tempMax: Number($('[data-c=tempMax]', g).value), pausaMin: Number($('[data-c=pausaMin]', g).value) }, '#msgSaude'); }
+  else if (a === 'senha') { api('/api/senha', { nova: $('#novaSenha').value }).then(() => { $('#msgSenha').textContent = 'Senha salva. Este aparelho continua conectado.'; travar = false; atualizar(); }).catch((er) => { $('#msgSenha').textContent = `Erro: ${er.message}`; }); }
+  else if (a === 'atualizar') { if (confirm('Atualizar o PokeBox agora? As contas reconectam em alguns segundos.')) { acao({ tipo: 'atualizar' }, '#msgSis'); $('#msgSis').textContent = 'Atualizando… o painel volta em uns 15 segundos.'; } }
+  else if (a === 'reiniciar') { if (confirm('Reiniciar o PokeBox? As contas reconectam em alguns segundos.')) acao({ tipo: 'reiniciar' }, '#msgSis'); }
+  else if (a === 'desligar') { if (confirm('Desligar o PokeBox? O painel sai do ar e as contas param até você reiniciar a box.')) acao({ tipo: 'desligar' }, '#msgSis'); }
 });
 atualizar();
-setInterval(atualizar, 3000);
-setInterval(() => { if (ultimaOk && Date.now() - ultimaOk > 12000) $('#topo').textContent = 'sem resposta da box há alguns segundos…'; }, 3000);
+setInterval(atualizar, 4000);
 </script>
 </body>
 </html>
